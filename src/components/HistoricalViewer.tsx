@@ -249,6 +249,7 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
                 onChange={(e) => handleDateRangeChange('from', e.target.value)}
                 fullWidth
                 size="small"
+                className="date-picker-field"
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -263,6 +264,7 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
                 onChange={(e) => handleDateRangeChange('to', e.target.value)}
                 fullWidth
                 size="small"
+                className="date-picker-field"
                 InputLabelProps={{
                   shrink: true,
                 }}
@@ -319,7 +321,7 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
                     }}
                     getRowStyle={(params) => {
                       if (params.data.sector === 'APAC Overall') {
-                        return { backgroundColor: '#f5f5f5', fontWeight: 'bold' };
+                        return { backgroundColor: '#334155', fontWeight: 'bold' };
                       }
                       return undefined;
                     }}

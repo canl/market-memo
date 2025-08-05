@@ -16,6 +16,11 @@ import {
   MenuItem,
   TextField
 } from '@mui/material';
+import {
+  Print as PrintIcon,
+  PictureAsPdf as PdfIcon,
+  Email as EmailIcon
+} from '@mui/icons-material';
 
 import { DailyReport } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
@@ -91,6 +96,7 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                     value={internalSelectedDate}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange(e.target.value)}
                     fullWidth
+                    className="date-picker-field"
                     InputLabelProps={{
                       shrink: true,
                     }}
@@ -141,6 +147,7 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                   variant="outlined"
                   onClick={onPrint}
                   size="small"
+                  startIcon={<PrintIcon />}
                 >
                   Print
                 </Button>
@@ -148,6 +155,7 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                   variant="outlined"
                   onClick={onExportPDF}
                   size="small"
+                  startIcon={<PdfIcon />}
                 >
                   Export PDF
                 </Button>
@@ -155,6 +163,7 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                   variant="contained"
                   onClick={onSendEmail}
                   size="small"
+                  startIcon={<EmailIcon />}
                 >
                   Send to Desk
                 </Button>
@@ -171,6 +180,7 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                   onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleDateChange(e.target.value)}
                   fullWidth
                   size="small"
+                  className="date-picker-field"
                   InputLabelProps={{
                     shrink: true,
                   }}

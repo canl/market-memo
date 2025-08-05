@@ -1,7 +1,70 @@
 /* Market Memo UI Styles */
 .App {
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #0f172a;
+}
+
+/* Date picker theme-specific styling */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  opacity: 0.8;
+  width: 20px;
+  height: 20px;
+}
+
+/* Light theme date picker - keep icon dark on light background */
+[data-theme="light"] input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: none !important;
+  opacity: 0.7 !important;
+}
+
+/* Ensure calendar icons ONLY appear on date inputs */
+input:not([type="date"])::-webkit-calendar-picker-indicator {
+  display: none !important;
+}
+
+/* Ensure no calendar icons on text inputs, number inputs, or textareas */
+input[type="text"]::-webkit-calendar-picker-indicator,
+input[type="number"]::-webkit-calendar-picker-indicator,
+textarea::-webkit-calendar-picker-indicator {
+  display: none !important;
+}
+
+/* Hide native calendar icon in dark theme and create custom overlay ONLY for date inputs */
+[data-theme="dark"] .date-picker-field {
+  position: relative;
+}
+
+[data-theme="dark"] .date-picker-field input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0 !important;
+  position: absolute;
+  right: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+[data-theme="dark"] .date-picker-field::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 24 24'%3E%3Cpath d='M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  padding: 2px;
 }
 
 /* Print styles for reports */
@@ -34,11 +97,14 @@
 
 /* AG Grid custom styling */
 .ag-theme-alpine {
-  --ag-header-background-color: #1976d2;
-  --ag-header-foreground-color: white;
-  --ag-header-cell-hover-background-color: #1565c0;
-  --ag-row-hover-color: #e3f2fd;
-  --ag-selected-row-background-color: #bbdefb;
+  --ag-header-background-color: #334155;
+  --ag-header-foreground-color: #f8fafc;
+  --ag-header-cell-hover-background-color: #475569;
+  --ag-row-hover-color: rgba(248, 250, 252, 0.05);
+  --ag-selected-row-background-color: #2563eb;
+  --ag-background-color: #1e293b;
+  --ag-foreground-color: #f8fafc;
+  --ag-border-color: #334155;
 }
 
 .ag-theme-alpine .ag-header-cell {
@@ -46,7 +112,7 @@
 }
 
 .ag-theme-alpine .ag-row {
-  border-bottom: 1px solid #e0e0e0;
+  border-bottom: 1px solid #334155;
 }
 
 /* Custom scrollbar for better appearance */
@@ -56,17 +122,17 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: #1e293b;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #475569;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #64748b;
 }
 
 /* Responsive adjustments */
@@ -84,21 +150,21 @@
 
 /* Professional trading desk styling */
 .trading-card {
-  border-left: 4px solid #1976d2;
+  border-left: 4px solid #2563eb;
   transition: box-shadow 0.3s ease;
 }
 
 .trading-card:hover {
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.2);
 }
 
 .pnl-positive {
-  color: #2e7d32;
+  color: #10b981;
   font-weight: 600;
 }
 
 .pnl-negative {
-  color: #d32f2f;
+  color: #ef4444;
   font-weight: 600;
 }
 

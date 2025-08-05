@@ -28,7 +28,7 @@ interface TraderInputFormProps {
 
 export const TraderInputForm: React.FC<TraderInputFormProps> = ({ onSave, onSubmit }) => {
   const [formState, setFormState] = useState<TraderFormState>({
-    selectedSector: 'Australia',
+    selectedSector: 'Australia IG',
     marketMovesAndFlows: '',
     dailyPnL: {},
     marketCommentary: ''

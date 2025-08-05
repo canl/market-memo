@@ -1,4 +1,4 @@
-import { SectorRecap, DailyPnL, APACComments } from '../types';
+import { DailyPnL, APACComments } from '../types';
 import { DataService } from './dataService';
 
 export class AggregationService {

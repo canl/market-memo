@@ -14,9 +14,9 @@ import {
   Divider,
   Alert,
   InputAdornment,
-  ToggleButton,
-  ToggleButtonGroup,
-  Paper
+  Paper,
+  Tabs,
+  Tab
 } from '@mui/material';
 
 import { Sector, SectorRecap, DailyPnL, TraderFormState, APACComments, InputMode } from '../types';
@@ -24,6 +24,58 @@ import { SECTORS, SECTOR_LABELS, SECTOR_PNL_FIELDS } from '../constants/sectors'
 import { DataService } from '../services/dataService';
 import { formatCurrency } from '../utils/formatters';
 import { AggregationService } from '../services/aggregationService';
+
+// Constants
+const SAVE_STATUS_TIMEOUT = {
+  SUCCESS: 2000,
+  ERROR: 3000
+} as const;
+
+const INITIAL_SECTOR_FORM_STATE: TraderFormState = {
+  selectedSector: 'Australia IG',
+  marketMovesAndFlows: '',
+  dailyPnL: {},
+  marketCommentary: ''
+};
+
+const INITIAL_APAC_FORM_STATE = {
+  risk: '',
+  volumes: '',
+  marketCommentary: ''
+};
+
+// Helper functions
+const getPnLFieldKey = (field: string): keyof DailyPnL => {
+  const fieldMap: Record<string, keyof DailyPnL> = {
+    'USD Bonds': 'usdBonds',
+    'AUD Bonds': 'localBonds',
+    'JPY Bonds': 'jpyBonds',
+    'CNY Bonds': 'cnyBonds',
+    'MYR Bonds': 'myrBonds',
+    'INR Bonds': 'inrBonds',
+    'CDS': 'cds'
+  };
+  return fieldMap[field] || 'usdBonds';
+};
+
+const formatPnLValue = (value: number | undefined): string => {
+  return value !== undefined ? (value / 1000).toString() : '';
+};
+
+const parsePnLValue = (value: string): number | undefined => {
+  return value === '' ? undefined : parseFloat(value) * 1000;
+};
+
+const validateSectorForm = (formState: TraderFormState): boolean => {
+  return (formState.marketMovesAndFlows || '').trim() !== '' &&
+         (formState.marketCommentary || '').trim() !== '';
+};
+
+const validateAPACForm = (formState: { risk: string; volumes: string; marketCommentary: string }): boolean => {
+  return (formState.risk || '').trim() !== '' &&
+         (formState.volumes || '').trim() !== '' &&
+         (formState.marketCommentary || '').trim() !== '';
+};
 
 interface EnhancedTraderInputProps {
   onSave?: (recap: SectorRecap) => void;
@@ -46,19 +98,10 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   
   // Sector input state
-  const [sectorFormState, setSectorFormState] = useState<TraderFormState>({
-    selectedSector: 'Australia',
-    marketMovesAndFlows: '',
-    dailyPnL: {},
-    marketCommentary: ''
-  });
+  const [sectorFormState, setSectorFormState] = useState<TraderFormState>(INITIAL_SECTOR_FORM_STATE);
 
   // APAC input state
-  const [apacFormState, setApacFormState] = useState({
-    risk: '',
-    volumes: '',
-    marketCommentary: ''
-  });
+  const [apacFormState, setApacFormState] = useState(INITIAL_APAC_FORM_STATE);
 
   // Real-time P&L aggregation
   const [aggregatedPnL, setAggregatedPnL] = useState({ cash: 0, cds: 0, total: 0 });
@@ -96,12 +139,10 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
   }, [inputMode, selectedDate]);
 
   const handleInputModeChange = (
-    _event: React.MouseEvent<HTMLElement>,
-    newMode: InputMode | null,
+    _event: React.SyntheticEvent,
+    newMode: InputMode,
   ) => {
-    if (newMode !== null) {
-      setInputMode(newMode);
-    }
+    setInputMode(newMode);
   };
 
   const handleSectorChange = (sector: Sector) => {
@@ -109,7 +150,7 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
   };
 
   const handlePnLChange = (field: string, value: string) => {
-    const numValue = value === '' ? undefined : parseFloat(value) * 1000;
+    const numValue = parsePnLValue(value);
     setSectorFormState(prev => ({
       ...prev,
       dailyPnL: {
@@ -119,23 +160,10 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
     }));
   };
 
-  const getPnLFieldKey = (field: string): keyof DailyPnL => {
-    switch (field) {
-      case 'USD Bonds': return 'usdBonds';
-      case 'AUD Bonds': return 'localBonds';
-      case 'JPY Bonds': return 'jpyBonds';
-      case 'CNY Bonds': return 'cnyBonds';
-      case 'MYR Bonds': return 'myrBonds';
-      case 'INR Bonds': return 'inrBonds';
-      case 'CDS': return 'cds';
-      default: return 'usdBonds';
-    }
-  };
-
   const getPnLValue = (field: string): string => {
     const key = getPnLFieldKey(field);
     const value = sectorFormState.dailyPnL[key];
-    return value !== undefined ? (value / 1000).toString() : '';
+    return formatPnLValue(value);
   };
 
   const createSectorRecap = (): SectorRecap => ({
@@ -169,10 +197,10 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
         onAPACSave?.(comments);
       }
       setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 2000);
+      setTimeout(() => setSaveStatus('idle'), SAVE_STATUS_TIMEOUT.SUCCESS);
     } catch (error) {
       setSaveStatus('error');
-      setTimeout(() => setSaveStatus('idle'), 3000);
+      setTimeout(() => setSaveStatus('idle'), SAVE_STATUS_TIMEOUT.ERROR);
     }
   };
 
@@ -186,19 +214,17 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
     }
   };
 
-  const isSectorFormValid = (sectorFormState.marketMovesAndFlows || '').trim() !== '' &&
-                           (sectorFormState.marketCommentary || '').trim() !== '';
-
-  const isAPACFormValid = (apacFormState.risk || '').trim() !== '' &&
-                         (apacFormState.volumes || '').trim() !== '' &&
-                         (apacFormState.marketCommentary || '').trim() !== '';
-
-  const isFormValid = inputMode === 'sector' ? isSectorFormValid : isAPACFormValid;
+  const isFormValid = inputMode === 'sector'
+    ? validateSectorForm(sectorFormState)
+    : validateAPACForm(apacFormState);
 
   return (
     <Box sx={{ p: 0 }}>
-      {/* Header with Date Picker and Mode Toggle */}
-      <Paper sx={{ p: 2, mb: 1, backgroundColor: 'grey.50' }}>
+      {/* Header with Title and Date Picker */}
+      <Paper sx={{ p: 2, mb: 1 }}>
+        <Typography variant="h5" sx={{ mb: 2 }}>
+          Trader Input
+        </Typography>
         <Grid container spacing={3} alignItems="center">
           <Grid xs={12} md={4}>
             <TextField
@@ -208,46 +234,14 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
               onChange={(e) => onDateChange(e.target.value)}
               fullWidth
               variant="outlined"
+              className="date-picker-field"
               InputLabelProps={{
                 shrink: true,
               }}
             />
           </Grid>
-            
-            <Grid xs={12} md={8}>
-              <Box display="flex" justifyContent="center">
-                <ToggleButtonGroup
-                  value={inputMode}
-                  exclusive
-                  onChange={handleInputModeChange}
-                  aria-label="input mode"
-                  size="large"
-                >
-                  <ToggleButton value="sector" aria-label="sector input">
-                    <Box textAlign="center">
-                      <Typography variant="subtitle1" fontWeight={600}>
-                        📝 Sector Input
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Individual sector recaps
-                      </Typography>
-                    </Box>
-                  </ToggleButton>
-                  <ToggleButton value="apac" aria-label="apac input">
-                    <Box textAlign="center">
-                      <Typography variant="subtitle1" fontWeight={600}>
-                        🌏 APAC Overall
-                      </Typography>
-                      <Typography variant="caption" color="text.secondary">
-                        Consolidated comments
-                      </Typography>
-                    </Box>
-                  </ToggleButton>
-                </ToggleButtonGroup>
-              </Box>
-            </Grid>
-          </Grid>
-        </Paper>
+        </Grid>
+      </Paper>
 
         {/* Status Messages */}
         {saveStatus === 'saved' && (
@@ -262,12 +256,44 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
           </Alert>
         )}
 
-        {/* Input Forms */}
+        {/* Input Forms with Tabs */}
         <Card>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs
+              value={inputMode}
+              onChange={handleInputModeChange}
+              aria-label="input mode tabs"
+              sx={{ px: 2 }}
+            >
+              <Tab
+                label={
+                  <Box>
+                    <Typography variant="body2" fontWeight={600}>
+                      Sector Input
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Individual sector recaps
+                    </Typography>
+                  </Box>
+                }
+                value="sector"
+              />
+              <Tab
+                label={
+                  <Box>
+                    <Typography variant="body2" fontWeight={600}>
+                      APAC Overall
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Consolidated comments
+                    </Typography>
+                  </Box>
+                }
+                value="apac"
+              />
+            </Tabs>
+          </Box>
           <CardContent>
-            <Typography variant="h5" gutterBottom>
-              {inputMode === 'sector' ? 'Sector Input Form' : 'APAC Overall Comments'}
-            </Typography>
             
             {inputMode === 'sector' ? (
               // Sector Input Form (existing logic)
@@ -379,7 +405,7 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
                   <Typography variant="h6" gutterBottom>
                     Auto-calculated P&L Breakdown
                   </Typography>
-                  <Paper sx={{ p: 2, bgcolor: 'grey.50', border: '1px solid', borderColor: 'grey.300' }}>
+                  <Paper sx={{ p: 2, border: '1px solid', borderColor: 'divider' }}>
                     <Grid container spacing={2}>
                       <Grid xs={12} sm={4}>
                         <Typography variant="subtitle2" color="text.secondary">

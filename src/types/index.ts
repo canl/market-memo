@@ -1,5 +1,5 @@
 // Sector types
-export type Sector = 'Australia' | 'Japan' | 'China' | 'SEA' | 'India' | 'Sovs';
+export type Sector = 'Australia IG' | 'Japan IG' | 'China IG' | 'SEA IG' | 'India IG' | 'Sovs';
 
 // P&L structure for different sectors
 export interface DailyPnL {

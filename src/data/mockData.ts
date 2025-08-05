@@ -3,21 +3,21 @@ import { DailyReport, SectorRecap, APACComments } from '../types';
 // Sample APAC comments based on the provided example
 export const sampleAPACComments: APACComments = {
   risk: '82k (-24k)',
-  pnlCash: 650000,
+  pnlCash: 175000,
   pnlCds: -30000,
   volumes: '268M',
-  marketCommentary: 'APAC markets showed mixed performance today with continued volatility in rates markets. Overall sentiment remains cautious amid ongoing geopolitical tensions and central bank policy uncertainty.',
+  marketCommentary: 'Copr ID unch to 2bps tighter. HY unch to 0.25pt higher. CDS -0.25 to 0.25',
   date: new Date().toISOString().split('T')[0]
 };
 
 // Sample sector recaps based on the provided example
 export const sampleSectorRecaps: SectorRecap[] = [
   {
-    sector: 'Australia',
+    sector: 'Australia IG',
     marketMovesAndFlows: 'Kept constructive sentiment post the headline about Japan tariff to 15% and Ishiba stepping down.',
     dailyPnL: {
       usdBonds: 130000,
-      localBonds: 40000,
+      jpyBonds: 40000,
       cds: 30000
     },
     marketCommentary: 'Spreads are broadly unchanged to 2 tighter with light flows, in Fin senior desk saw continued strong demand in MQGAU 33s and 34s, in T2s desk saw demand in ANZ 5.731 34s and ANZ/ WSTP 35/ 36s. In corporates desk continued to see interest in STOAU 31/ 33s and NBN curve.',
@@ -25,31 +25,31 @@ export const sampleSectorRecaps: SectorRecap[] = [
     submittedBy: 'Trader A'
   },
   {
-    sector: 'Japan',
+    sector: 'Japan IG',
     marketMovesAndFlows: 'Kept constructive sentiment post the headline about Japan tariff to 15% and Ishiba stepping down.',
     dailyPnL: {
       usdBonds: 130000,
       jpyBonds: 40000,
       cds: 30000
     },
-    marketCommentary: 'Japan IG cash spreads continued to be in a constructive tone after Japan holiday with IG (-1/-2), HY (+0.05/+0.15). SoftBank said it and Open Al\'s 500bn Al project struggled to get off ground. Recently issued cash bonds settled the day up in a better sentiment with spreads average (-1.5), HY average (+0.10). Desk continued to see demand in new SoftBank in the long durations.',
+    marketCommentary: 'Japan IG cash spreads continued to be in a constructive tone after Japan holiday with IG (-1/-2), HY (+0.05/+0.15). SoftBank said it and Open Al\'s 500bn Al project struggled to get off ground. Recently issued cash bonds settled the day up in a better sentiment with spreads average (-1.5), HY average (+0.10). Desk continued to see demand in new SoftBank in the long durations. Japan CDS spreads settled the day in a similar tone. CDSI closed at 60(-1/2) with seeing protection sellers with the roll at 6.625(uc) with JGB10YR (-2), TPX (+1), USDJPY at 148(-3/4) post Japan upper house election.',
     date: new Date().toISOString().split('T')[0],
     submittedBy: 'Trader B'
   },
   {
-    sector: 'China',
+    sector: 'China IG',
     marketMovesAndFlows: 'NA',
     dailyPnL: {
       usdBonds: -100000,
       cnyBonds: 40000,
       cds: 30000
     },
-    marketCommentary: 'A bit of pullback today, closing +3/-1. TW names gave back 3bps on the recent gain, but had RMs adding after the move. TMT side, Syr closed unchanged to 1bp wider, 30yr is still solid though less buying interest today, closed broadly unchanged. HK names were active today.',
+    marketCommentary: 'A bit of pullback today, closing +3/-1. TW names gave back 3bps on the recent gain, but had RMs adding after the move. TMT side, Syr closed unchanged to 1bp wider, 30yr is still solid though less buying interest today, closed broadly unchanged. HK names were active today. Seeing buyers across perps/bullets on NANFUN/HYSAN. HYSAN 7.2% up 75c with both retail and RMs buying. T2 are broadly unchanged.',
     date: new Date().toISOString().split('T')[0],
     submittedBy: 'Trader C'
   },
   {
-    sector: 'SEA',
+    sector: 'SEA IG',
     marketMovesAndFlows: 'NA',
     dailyPnL: {
       usdBonds: 100000,
@@ -61,14 +61,14 @@ export const sampleSectorRecaps: SectorRecap[] = [
     submittedBy: 'Trader D'
   },
   {
-    sector: 'India',
+    sector: 'India IG',
     marketMovesAndFlows: 'NA',
     dailyPnL: {
       usdBonds: 130000,
       inrBonds: 40000,
       cds: 30000
     },
-    marketCommentary: 'Spreads are 1-2 bps tighter but saw profit booking by clients today, desk saw flows across EXIMBK 26/ OILIN, INCIN, POWFIN 27s /TATSON 28s / RECLIN 29s and light two way flows in 10 year while RILIN 52/ 62s were better bid.',
+    marketCommentary: 'Spreads are 1-2 bps tighter but saw profit booking by clients today, desk saw flows across EXIMBK 26/ OILIN, INCIN, POWFIN 27s /TATSON 28s / RECLIN 29s and light two way flows in 10 year while RILIN 52/ 62s were better bid. ATs were 15 cents higher with better demand across both names.',
     date: new Date().toISOString().split('T')[0],
     submittedBy: 'Trader E'
   },

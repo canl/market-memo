@@ -177,10 +177,9 @@ export const APACCommentsForm: React.FC<APACCommentsFormProps> = ({ onSave, onSu
             <Box
               sx={{
                 p: 2,
-                bgcolor: 'grey.50',
                 borderRadius: 1,
                 border: '1px solid',
-                borderColor: 'grey.300'
+                borderColor: 'divider'
               }}
             >
               <Typography variant="h6" color="primary">

@@ -8,7 +8,6 @@ import {
   ListItemText,
   Box,
   Typography,
-  Divider,
   Tooltip
 } from '@mui/material';
 import {
@@ -85,9 +84,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           boxSizing: 'border-box',
           transition: 'width 0.3s ease',
           overflowX: 'hidden',
-          borderRight: '1px solid #e0e0e0',
-          backgroundColor: '#f8f9fa',
-          boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+          borderRight: '1px solid #334155',
+          backgroundColor: '#1e293b',
+          boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)',
           zIndex: (theme) => theme.zIndex.drawer,
           marginTop: '64px', // Height of the AppBar
           height: 'calc(100vh - 64px)' // Full height minus AppBar
@@ -111,20 +110,21 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 onClick={() => navigate(item.path)}
                 sx={{
                   mx: 1,
-                  borderRadius: 2,
+                  borderRadius: '0.5rem',
                   minHeight: 48,
                   justifyContent: open ? 'initial' : 'center',
                   px: 2.5,
+                  color: '#f8fafc',
                   '&.Mui-selected': {
-                    backgroundColor: '#1976d2',
-                    color: 'white',
-                    boxShadow: '0 2px 8px rgba(25, 118, 210, 0.3)',
+                    backgroundColor: '#2563eb',
+                    color: '#ffffff',
+                    boxShadow: '0 2px 4px rgba(37, 99, 235, 0.3)',
                     '&:hover': {
-                      backgroundColor: '#1565c0',
+                      backgroundColor: '#1d4ed8',
                     },
                   },
                   '&:hover': {
-                    backgroundColor: open ? 'rgba(25, 118, 210, 0.08)' : 'rgba(0, 0, 0, 0.04)',
+                    backgroundColor: 'rgba(248, 250, 252, 0.05)',
                     transform: 'translateX(2px)',
                     transition: 'all 0.2s ease',
                   },
@@ -137,7 +137,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     justifyContent: 'center',
                     display: 'flex',
                     alignItems: 'center',
-                    color: currentView === item.id ? 'white' : '#666',
+                    color: currentView === item.id ? '#ffffff' : '#cbd5e1',
                     opacity: 0.9,
                     '& .MuiSvgIcon-root': {
                       fontSize: '1.25rem'
@@ -152,15 +152,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
                       primary={item.label}
                       secondary={item.description}
                       primaryTypographyProps={{
-                        fontSize: '0.95rem',
-                        fontWeight: currentView === item.id ? 600 : 500,
+                        fontSize: '0.875rem',
+                        fontWeight: 500,
+                        color: currentView === item.id ? '#ffffff' : '#f8fafc',
                         noWrap: true
                       }}
                       secondaryTypographyProps={{
-                        fontSize: '0.8rem',
+                        fontSize: '0.75rem',
                         noWrap: true,
                         sx: {
-                          color: currentView === item.id ? 'rgba(255, 255, 255, 0.7)' : 'text.secondary'
+                          color: currentView === item.id ? 'rgba(255, 255, 255, 0.8)' : '#94a3b8'
                         }
                       }}
                     />
