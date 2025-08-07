@@ -4,7 +4,6 @@ import {
   Card,
   CardContent,
   Typography,
-  Divider,
   Unstable_Grid2 as Grid,
   Paper,
   Button,
@@ -14,7 +13,9 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  TextField
+  TextField,
+  CircularProgress,
+  Backdrop
 } from '@mui/material';
 import {
   Print as PrintIcon,
@@ -22,10 +23,18 @@ import {
   Email as EmailIcon
 } from '@mui/icons-material';
 
-import { DailyReport } from '../types';
+import { DailyReport, SectorRecap } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
-import { formatDate, formatCurrency, formatPnL } from '../utils/formatters';
+import { formatDate, formatCurrency } from '../utils/formatters';
 import { DataService } from '../services/dataService';
+
+// Helper function to calculate sector total P&L
+const getSectorTotalPnL = (recap: SectorRecap): number => {
+  const { dailyPnL } = recap;
+  return (dailyPnL.usdBonds || 0) +
+    (dailyPnL.localBonds || dailyPnL.jpyBonds || dailyPnL.cnyBonds || dailyPnL.myrBonds || dailyPnL.inrBonds || 0) +
+    (dailyPnL.cds || 0);
+};
 
 interface EnhancedConsolidatedReportProps {
   report?: DailyReport;
@@ -40,39 +49,56 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
   ({ report: propReport, onExportPDF, onSendEmail, onPrint, selectedDate, onDateChange }, ref) => {
     const [currentReport, setCurrentReport] = useState<DailyReport | null>(propReport || null);
     const [availableDates, setAvailableDates] = useState<string[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [showUpdated, setShowUpdated] = useState<boolean>(false);
 
-    const [internalSelectedDate, setInternalSelectedDate] = useState<string>(
-      selectedDate || new Date().toISOString().split('T')[0]
-    );
+    const [internalSelectedDate, setInternalSelectedDate] = useState<string>(() => {
+      if (selectedDate) return selectedDate;
+
+      // Get the first available date from historical data
+      const historicalData = DataService.getHistoricalData();
+      if (historicalData.length > 0) {
+        return historicalData[0].date; // Most recent date
+      }
+
+      return new Date().toISOString().split('T')[0];
+    });
 
     useEffect(() => {
+      setIsLoading(true);
+
       // Get available dates from historical data
       const historicalData = DataService.getHistoricalData();
       const dates = historicalData.map(report => report.date).sort((a, b) => b.localeCompare(a));
-      console.log('Available dates for consolidated report:', dates.length);
       setAvailableDates(dates);
 
-      // If no report is provided via props, load based on selected date
-      if (!propReport) {
-        const foundReport = historicalData.find(r => r.date === internalSelectedDate);
-        console.log('Found report for date', internalSelectedDate, ':', !!foundReport);
-        setCurrentReport(foundReport || null);
-      }
+      // Load report based on selected date
+      const foundReport = historicalData.find(r => r.date === internalSelectedDate);
+      setCurrentReport(foundReport || null);
+
+      setIsLoading(false);
     }, [propReport, internalSelectedDate]);
 
     const handleDateChange = (newDate: string) => {
+      setIsLoading(true);
       setInternalSelectedDate(newDate);
+
       if (onDateChange) {
         onDateChange(newDate);
       }
 
-      // Load report for the new date
-      if (!propReport) {
+      // Brief loading delay for smooth UX
+      setTimeout(() => {
+        // Load report for the new date - ALWAYS load when date changes
         const historicalData = DataService.getHistoricalData();
         const foundReport = historicalData.find(r => r.date === newDate);
-        console.log('Dynamically loading report for date:', newDate, 'Found:', !!foundReport);
         setCurrentReport(foundReport || null);
-      }
+        setIsLoading(false);
+
+        // Show updated indicator briefly
+        setShowUpdated(true);
+        setTimeout(() => setShowUpdated(false), 2000);
+      }, 100); // Brief delay for smooth UX
     };
 
     const handleQuickDateSelect = (dateString: string) => {
@@ -102,36 +128,36 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                     }}
                   />
                 </Grid>
-                  
-                  <Grid xs={12} md={6}>
-                    <FormControl fullWidth>
-                      <InputLabel>Quick Select</InputLabel>
-                      <Select
-                        value=""
-                        label="Quick Select"
-                        onChange={(e) => handleQuickDateSelect(e.target.value)}
-                      >
-                        {availableDates.slice(0, 10).map(date => (
-                          <MenuItem key={date} value={date}>
-                            {formatDate(date)}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </FormControl>
-                  </Grid>
-                </Grid>
 
-                <Alert severity="info">
-                  No report found for {formatDate(internalSelectedDate)}.
-                  Please select a different date or check if data exists for this date.
-                </Alert>
-              </CardContent>
-            </Card>
-          </Box>
-        );
+                <Grid xs={12} md={6}>
+                  <FormControl fullWidth>
+                    <InputLabel>Quick Select Available Date</InputLabel>
+                    <Select
+                      value={internalSelectedDate}
+                      label="Quick Select Available Date"
+                      onChange={(e) => handleQuickDateSelect(e.target.value)}
+                    >
+                      {availableDates.slice(0, 10).map(date => (
+                        <MenuItem key={date} value={date}>
+                          {formatDate(date)} {date === availableDates[0] ? '(Latest)' : ''}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+              </Grid>
+
+              <Alert severity="info">
+                No report found for {formatDate(internalSelectedDate)}.
+                Please select a different date or check if data exists for this date.
+              </Alert>
+            </CardContent>
+          </Card>
+        </Box>
+      );
     }
 
-    const totalPnL = currentReport.apacComments.pnlCash + currentReport.apacComments.pnlCds;
+
 
     return (
       <Box sx={{ p: 0 }}>
@@ -186,164 +212,333 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                   }}
                 />
               </Grid>
-                
-                <Grid xs={12} md={6}>
-                  <FormControl fullWidth size="small">
-                    <InputLabel>Quick Select Recent</InputLabel>
-                    <Select
-                      value=""
-                      label="Quick Select Recent"
-                      onChange={(e) => handleQuickDateSelect(e.target.value)}
-                    >
-                      {availableDates.slice(0, 10).map(date => (
-                        <MenuItem key={date} value={date}>
-                          {formatDate(date)}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-              </Grid>
 
-              <div ref={ref}>
-                    <Paper
-                      elevation={0}
+              <Grid xs={12} md={6}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Quick Select Date</InputLabel>
+                  <Select
+                    value={internalSelectedDate}
+                    label="Quick Select Date"
+                    onChange={(e) => handleQuickDateSelect(e.target.value)}
+                  >
+                    {availableDates.slice(0, 10).map(date => (
+                      <MenuItem key={date} value={date}>
+                        {formatDate(date)} {date === availableDates[0] ? '(Latest)' : ''}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+            </Grid>
+
+            <div ref={ref}>
+              <Paper
+                key={currentReport.date} // Force re-render when date changes
+                elevation={0}
+                sx={{
+                  p: 3,
+                  border: '1px solid',
+                  borderColor: 'divider',
+                  borderRadius: 2,
+                  position: 'relative',
+                  transition: 'all 0.3s ease-in-out',
+                  '@media print': {
+                    boxShadow: 'none',
+                    border: 'none',
+                    p: 2
+                  }
+                }}
+              >
+                {/* Loading Overlay */}
+                {isLoading && (
+                  <Backdrop
+                    sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                      zIndex: 1,
+                      borderRadius: 2
+                    }}
+                    open={isLoading}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                      <CircularProgress size={40} />
+                      <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
+                        Loading report data...
+                      </Typography>
+                    </Box>
+                  </Backdrop>
+                )}
+                {/* Professional Header */}
+                <Box
+                  sx={{
+                    borderBottom: '2px solid',
+                    borderColor: 'primary.main',
+                    pb: 2,
+                    mb: 3,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
+                  <Box>
+                    <Typography variant="h4" fontWeight="bold" color="primary.main">
+                      APAC Credit Market Daily
+                    </Typography>
+                    <Typography variant="subtitle1" color="text.secondary" sx={{ mt: 0.5 }}>
+                      Daily Trading Summary & Market Commentary
+                    </Typography>
+                  </Box>
+                  <Box textAlign="right" sx={{ position: 'relative' }}>
+                    <Typography variant="h6" fontWeight="bold">
+                      {formatDate(currentReport.date)}
+                      {showUpdated && (
+                        <Typography
+                          component="span"
+                          variant="caption"
+                          sx={{
+                            ml: 1,
+                            px: 1,
+                            py: 0.5,
+                            backgroundColor: 'success.main',
+                            color: 'white',
+                            borderRadius: 1,
+                            fontSize: '0.7rem',
+                            animation: 'fadeInOut 2s ease-in-out'
+                          }}
+                        >
+                          UPDATED
+                        </Typography>
+                      )}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      Generated: {new Date().toLocaleTimeString()}
+                    </Typography>
+                  </Box>
+                </Box>
+                <Typography
+                  variant="h6"
+                  fontWeight="bold"
+                  color="primary.main"
+                  sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
+                >
+                  📰 APAC OVERALL SUMMARY
+                </Typography>
+
+                {/* Executive Summary - APAC Overview */}
+                <Box
+                  sx={{
+                    mb: 3,
+                    p: 2.5,
+                    backgroundColor: 'action.hover',
+                    borderRadius: 1,
+                    border: '1px solid',
+                    borderColor: 'divider'
+                  }}
+                >
+
+
+                  {/* Key Metrics Row */}
+                  <Grid container spacing={3} sx={{ mb: 2 }}>
+                    <Grid xs={12} sm={3}>
+                      <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'background.paper', borderRadius: 1 }}>
+                        <Typography variant="caption" color="text.secondary" fontWeight="bold">
+                          OVERALL P&L
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="success.main">
+                          {formatCurrency((currentReport.apacComments.pnlCash || 0) + (currentReport.apacComments.pnlCds || 0))}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    <Grid xs={12} sm={3}>
+                      <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'background.paper', borderRadius: 1 }}>
+                        <Typography variant="caption" color="text.secondary" fontWeight="bold">
+                          RISK
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold">
+                          {currentReport.apacComments.risk}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    <Grid xs={12} sm={3}>
+                      <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'background.paper', borderRadius: 1 }}>
+                        <Typography variant="caption" color="text.secondary" fontWeight="bold">
+                          VOLUMES
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold">
+                          {currentReport.apacComments.volumes}
+                        </Typography>
+                      </Box>
+                    </Grid>
+
+                    <Grid xs={12} sm={3}>
+                      <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'background.paper', borderRadius: 1 }}>
+                        <Typography variant="caption" color="text.secondary" fontWeight="bold">
+                          CASH P&L
+                        </Typography>
+                        <Typography variant="h6" fontWeight="bold" color="primary.main">
+                          {formatCurrency(currentReport.apacComments.pnlCash || 0)}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                  </Grid>
+
+                  {/* Market Moves Summary */}
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" fontWeight="bold" color="text.primary" sx={{ mb: 1 }}>
+                      Market Moves and Flows
+                    </Typography>
+                    <Typography variant="body2" sx={{
+                      fontStyle: 'italic',
+                      p: 1.5,
+                      backgroundColor: 'background.paper',
+                      borderRadius: 1,
+                      border: '1px solid',
+                      borderColor: 'divider'
+                    }}>
+                      {currentReport.apacComments.marketCommentary}
+                    </Typography>
+                  </Box>
+                </Box>
+
+                {/* Sector Breakdown */}
+                <Box sx={{ mb: 3 }}>
+                  <Typography
+                    variant="h6"
+                    fontWeight="bold"
+                    color="primary.main"
+                    sx={{ mb: 2, display: 'flex', alignItems: 'center' }}
+                  >
+                    🏦 SECTOR BREAKDOWN
+                  </Typography>
+
+                  {currentReport.sectorRecaps.map((recap) => (
+                    <Card
+                      key={recap.sector}
                       sx={{
-                        p: 4,
-                        border: '1px solid #e0e0e0',
-                        '@media print': {
-                          boxShadow: 'none',
-                          border: 'none'
+                        mb: 2,
+                        border: '1px solid',
+                        borderColor: 'divider',
+                        '&:hover': {
+                          boxShadow: 2
                         }
                       }}
                     >
-                  {/* Header */}
-                  <Box textAlign="center" mb={4}>
-                    <Typography variant="h4" gutterBottom>
-                      APAC Market Memo
-                    </Typography>
-                    <Typography variant="h6" color="text.secondary">
-                      {formatDate(currentReport.date)}
-                    </Typography>
-                  </Box>
+                      <CardContent sx={{ p: 2.5 }}>
+                        {/* Sector Header */}
+                        <Box sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          mb: 2,
+                          pb: 1,
+                          borderBottom: '1px solid',
+                          borderColor: 'divider'
+                        }}>
+                          <Typography variant="h6" fontWeight="bold" color="primary.main">
+                            {SECTOR_LABELS[recap.sector]}
+                          </Typography>
+                          <Box sx={{ textAlign: 'right' }}>
+                            <Typography variant="subtitle2" color="text.secondary">
+                              Total P&L
+                            </Typography>
+                            <Typography
+                              variant="h6"
+                              fontWeight="bold"
+                              color={getSectorTotalPnL(recap) >= 0 ? 'success.main' : 'error.main'}
+                            >
+                              {formatCurrency(getSectorTotalPnL(recap))}
+                            </Typography>
+                          </Box>
+                        </Box>
 
-                  {/* APAC Overall Comments */}
-                  <Box mb={4}>
-                    <Typography variant="h5" gutterBottom color="primary">
-                      APAC Overall Comments
-                    </Typography>
-                    <Divider sx={{ mb: 2 }} />
-                    
-                    <Grid container spacing={2} mb={2}>
-                      <Grid xs={12} sm={4}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          Risk
-                        </Typography>
-                        <Typography variant="body1" fontWeight="bold">
-                          {currentReport.apacComments.risk}
-                        </Typography>
-                      </Grid>
-                      
-                      <Grid xs={12} sm={4}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          P&L
-                        </Typography>
-                        <Typography 
-                          variant="body1" 
-                          fontWeight="bold"
-                          color={totalPnL >= 0 ? 'success.main' : 'error.main'}
-                        >
-                          {formatCurrency(totalPnL)} 
-                          <Typography component="span" variant="body2" color="text.secondary">
-                            {' '}(Cash: {formatCurrency(currentReport.apacComments.pnlCash)}, 
-                            CDS: {formatCurrency(currentReport.apacComments.pnlCds)})
-                          </Typography>
-                        </Typography>
-                      </Grid>
-                      
-                      <Grid xs={12} sm={4}>
-                        <Typography variant="subtitle2" color="text.secondary">
-                          Volumes
-                        </Typography>
-                        <Typography variant="body1" fontWeight="bold">
-                          {currentReport.apacComments.volumes}
-                        </Typography>
-                      </Grid>
-                    </Grid>
+                        {/* P&L Breakdown */}
+                        <Grid container spacing={2} sx={{ mb: 2 }}>
+                          {recap.dailyPnL.usdBonds !== undefined && (
+                            <Grid xs={6} sm={3}>
+                              <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
+                                <Typography variant="caption" color="text.secondary">USD Bonds</Typography>
+                                <Typography variant="body2" fontWeight="bold">
+                                  {formatCurrency(recap.dailyPnL.usdBonds)}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          )}
+                          {(recap.dailyPnL.localBonds || recap.dailyPnL.jpyBonds || recap.dailyPnL.cnyBonds || recap.dailyPnL.myrBonds || recap.dailyPnL.inrBonds) !== undefined && (
+                            <Grid xs={6} sm={3}>
+                              <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
+                                <Typography variant="caption" color="text.secondary">Local Bonds</Typography>
+                                <Typography variant="body2" fontWeight="bold">
+                                  {formatCurrency(recap.dailyPnL.localBonds || recap.dailyPnL.jpyBonds || recap.dailyPnL.cnyBonds || recap.dailyPnL.myrBonds || recap.dailyPnL.inrBonds || 0)}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          )}
+                          {recap.dailyPnL.cds !== undefined && (
+                            <Grid xs={6} sm={3}>
+                              <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
+                                <Typography variant="caption" color="text.secondary">CDS</Typography>
+                                <Typography variant="body2" fontWeight="bold">
+                                  {formatCurrency(recap.dailyPnL.cds)}
+                                </Typography>
+                              </Box>
+                            </Grid>
+                          )}
+                        </Grid>
 
-                    {/* APAC Market Summary */}
-                    {currentReport.apacComments.marketCommentary && (
-                      <Box mt={3}>
-                        <Typography variant="h6" gutterBottom>
-                          APAC Market Summary
-                        </Typography>
-                        <Typography variant="body1" paragraph sx={{ textAlign: 'justify' }}>
-                          {currentReport.apacComments.marketCommentary}
-                        </Typography>
-                      </Box>
-                    )}
-                  </Box>
+                        {/* Market Moves */}
+                        {recap.marketMovesAndFlows && (
+                          <Box sx={{ mb: 2 }}>
+                            <Typography variant="subtitle2" fontWeight="bold" color="text.primary" sx={{ mb: 0.5 }}>
+                              Market Moves and Flows
+                            </Typography>
+                            <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                              {recap.marketMovesAndFlows}
+                            </Typography>
+                          </Box>
+                        )}
 
-                  {/* Sector Recaps */}
-                  {currentReport.sectorRecaps.map((recap, index) => (
-                    <Box key={recap.sector} mb={4}>
-                      <Typography variant="h5" gutterBottom color="primary">
-                        {SECTOR_LABELS[recap.sector]}
-                      </Typography>
-                      <Divider sx={{ mb: 2 }} />
-                      
-                      <Grid container spacing={3}>
-                        <Grid xs={12}>
-                          <Typography variant="h6" gutterBottom>
-                            Market Moves and Flows
-                          </Typography>
-                          <Typography variant="body1" paragraph>
-                            {recap.marketMovesAndFlows || 'No market moves reported.'}
-                          </Typography>
-                        </Grid>
-                        
-                        <Grid xs={12} md={6}>
-                          <Typography variant="h6" gutterBottom>
-                            Daily P&L
-                          </Typography>
-                          <Typography variant="body1" paragraph>
-                            {formatPnL(recap.dailyPnL)}
-                          </Typography>
-                        </Grid>
-                        
-                        <Grid xs={12}>
-                          <Typography variant="h6" gutterBottom>
-                            Market Commentary
-                          </Typography>
-                          <Typography variant="body1" paragraph sx={{ textAlign: 'justify' }}>
-                            {recap.marketCommentary || 'No market commentary provided.'}
-                          </Typography>
-                        </Grid>
-                      </Grid>
-                      
-                      {index < currentReport.sectorRecaps.length - 1 && (
-                        <Divider sx={{ mt: 2 }} />
-                      )}
-                    </Box>
+                        {/* Market Commentary */}
+                        {recap.marketCommentary && (
+                          <Box>
+                            <Typography variant="subtitle2" fontWeight="bold" color="text.primary" sx={{ mb: 0.5 }}>
+                              Market Commentary
+                            </Typography>
+                            <Typography variant="body2" sx={{ textAlign: 'justify', lineHeight: 1.6 }}>
+                              {recap.marketCommentary}
+                            </Typography>
+                          </Box>
+                        )}
+                      </CardContent>
+                    </Card>
                   ))}
+                </Box>
 
-                  {/* Footer */}
-                  <Box 
-                    mt={6} 
-                    pt={3} 
-                    borderTop="1px solid #e0e0e0"
-                    textAlign="center"
-                  >
-                    <Typography variant="body2" color="text.secondary">
-                      Generated on {new Date().toLocaleString()} | 
-                      Last modified: {new Date(currentReport.lastModified).toLocaleString()}
-                    </Typography>
-                  </Box>
-                </Paper>
-              </div>
-            </CardContent>
-          </Card>
-        </Box>
-      );
+                {/* Professional Footer */}
+                <Box
+                  sx={{
+                    mt: 4,
+                    pt: 2,
+                    borderTop: '1px solid',
+                    borderColor: 'divider',
+                    textAlign: 'center'
+                  }}
+                >
+                  <Typography variant="caption" color="text.secondary">
+                    Generated: {new Date().toLocaleString()} |
+                    Report Date: {formatDate(currentReport.date)}
+                  </Typography>
+                </Box>
+              </Paper>
+            </div>
+          </CardContent>
+        </Card>
+      </Box>
+    );
   }
 );

@@ -223,7 +223,7 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
       {/* Header with Title and Date Picker */}
       <Paper sx={{ p: 2, mb: 1 }}>
         <Typography variant="h5" sx={{ mb: 2 }}>
-          Trader Input
+          Market Input
         </Typography>
         <Grid container spacing={3} alignItems="center">
           <Grid xs={12} md={4}>

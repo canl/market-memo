@@ -90,13 +90,18 @@ export const generateHistoricalData = (): DailyReport[] => {
   const reports: DailyReport[] = [];
   const today = new Date();
 
-  // Sample market summaries for variety
+  // Sample market summaries for variety with distinct differences
   const marketSummaries = [
-    'APAC markets showed resilience despite global headwinds. Credit spreads remained stable with selective buying interest.',
-    'Mixed performance across APAC with Japan outperforming on policy expectations. Volatility remains elevated.',
-    'Constructive tone in most sectors with continued demand for quality names. Risk sentiment improving gradually.',
-    'Cautious trading environment with focus on duration risk. Flows were light but two-way across most sectors.',
-    'Strong performance in financials offset weakness in TMT. Overall P&L positive despite challenging conditions.'
+    'APAC markets showed strong resilience with credit spreads tightening 2-3bps across the board. Heavy buying interest in financials.',
+    'Volatile session with Japan underperforming on policy uncertainty. Risk-off sentiment dominated with spreads 1-2bps wider.',
+    'Constructive tone in most sectors with continued demand for quality names. Australia IG outperformed with 3bps tightening.',
+    'Cautious trading environment focused on duration risk. Light flows but two-way interest in China IG names.',
+    'Strong performance in financials offset TMT weakness. India IG saw heavy selling pressure with spreads 4bps wider.',
+    'Risk-on sentiment returned with spreads tightening across all sectors. Strong demand for new issue paper.',
+    'Mixed session with Japan IG leading gains while SEA lagged. Currency volatility impacted local bond performance.',
+    'Defensive positioning ahead of central bank meetings. Flows concentrated in shorter duration paper.',
+    'Rally continued with credit spreads at monthly tights. Strong institutional demand across all sectors.',
+    'Profit-taking emerged after recent rally. Spreads 1-2bps wider but underlying tone remains constructive.'
   ];
 
   for (let i = 0; i < 30; i++) {
@@ -106,31 +111,43 @@ export const generateHistoricalData = (): DailyReport[] => {
 
     // Skip weekends for trading data
     if (date.getDay() === 0 || date.getDay() === 6) continue;
-    
+
+    // Create more distinct variations based on day index
+    const dayVariation = i % 10; // Creates patterns every 10 days
+    const isPositiveDay = dayVariation < 6; // 60% positive days
+    const volatilityFactor = 1 + (dayVariation * 0.3); // Varying volatility
+
     const report: DailyReport = {
       date: dateString,
       apacComments: {
-        risk: `${Math.floor(Math.random() * 100)}k (${Math.random() > 0.5 ? '+' : '-'}${Math.floor(Math.random() * 50)}k)`,
-        pnlCash: Math.floor((Math.random() - 0.5) * 2000000),
-        pnlCds: Math.floor((Math.random() - 0.5) * 200000),
-        volumes: `${Math.floor(Math.random() * 500)}M`,
-        marketCommentary: marketSummaries[Math.floor(Math.random() * marketSummaries.length)],
+        risk: `${50 + dayVariation * 10}k (${isPositiveDay ? '-' : '+'}${5 + dayVariation * 3}k)`,
+        pnlCash: Math.floor((isPositiveDay ? 1 : -1) * (100000 + dayVariation * 50000) * volatilityFactor),
+        pnlCds: Math.floor((isPositiveDay ? -1 : 1) * (20000 + dayVariation * 10000) * volatilityFactor),
+        volumes: `${200 + dayVariation * 30}M`,
+        marketCommentary: marketSummaries[dayVariation % marketSummaries.length],
         date: dateString
       },
-      sectorRecaps: sampleSectorRecaps.map(recap => ({
-        ...recap,
-        date: dateString,
-        dailyPnL: {
-          ...recap.dailyPnL,
-          usdBonds: Math.floor((Math.random() - 0.5) * 400000),
-          localBonds: Math.floor((Math.random() - 0.5) * 100000),
-          jpyBonds: Math.floor((Math.random() - 0.5) * 100000),
-          cnyBonds: Math.floor((Math.random() - 0.5) * 100000),
-          myrBonds: Math.floor((Math.random() - 0.5) * 100000),
-          inrBonds: Math.floor((Math.random() - 0.5) * 100000),
-          cds: Math.floor((Math.random() - 0.5) * 80000)
-        }
-      })),
+      sectorRecaps: sampleSectorRecaps.map((recap, sectorIndex) => {
+        const sectorMultiplier = isPositiveDay ? 1 : -1;
+        const sectorVariation = (dayVariation + sectorIndex) % 5;
+
+        return {
+          ...recap,
+          date: dateString,
+          marketMovesAndFlows: `Day ${i + 1}: ${recap.sector} ${isPositiveDay ? 'outperformed' : 'underperformed'} with ${sectorVariation + 1}bps ${isPositiveDay ? 'tightening' : 'widening'}.`,
+          marketCommentary: `${recap.sector} - ${isPositiveDay ? 'Constructive' : 'Cautious'} trading session. ${recap.marketCommentary.substring(0, 100)}... [Day ${i + 1} update]`,
+          dailyPnL: {
+            ...recap.dailyPnL,
+            usdBonds: Math.floor(sectorMultiplier * (50000 + sectorVariation * 30000) * volatilityFactor),
+            localBonds: Math.floor(sectorMultiplier * (20000 + sectorVariation * 15000) * volatilityFactor),
+            jpyBonds: Math.floor(sectorMultiplier * (15000 + sectorVariation * 10000) * volatilityFactor),
+            cnyBonds: Math.floor(sectorMultiplier * (25000 + sectorVariation * 12000) * volatilityFactor),
+            myrBonds: Math.floor(sectorMultiplier * (18000 + sectorVariation * 8000) * volatilityFactor),
+            inrBonds: Math.floor(sectorMultiplier * (22000 + sectorVariation * 9000) * volatilityFactor),
+            cds: Math.floor(sectorMultiplier * (10000 + sectorVariation * 5000) * volatilityFactor)
+          }
+        };
+      }),
       createdAt: date.toISOString(),
       lastModified: date.toISOString()
     };

@@ -60,7 +60,7 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
 
   useEffect(() => {
     const data = DataService.getHistoricalData();
-    console.log('Historical data loaded:', data.length, 'reports');
+
     setHistoricalData(data);
 
     // Set default date range to last 7 days
@@ -147,7 +147,7 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
       return a.sector.localeCompare(b.sector);
     });
 
-    console.log('Filtered data:', sortedData.length, 'rows');
+
     return sortedData;
   }, [historicalData, filter]);
 

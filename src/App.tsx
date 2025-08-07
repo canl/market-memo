@@ -432,7 +432,7 @@ function AppContent() {
                 fontSize: '1.125rem'
               }}
             >
-              Credit Market Memo
+              Market Memo
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mr: 2 }}>
