@@ -106,9 +106,11 @@ export class PDFExportService {
       // APAC Summary
       pdf.text(`Risk: ${report.apacComments.risk}`, 20, yPosition);
       yPosition += 8;
-      pdf.text(`Total P&L: ${((report.apacComments.pnlCash + report.apacComments.pnlCds) / 1000).toFixed(0)}k`, 20, yPosition);
+      pdf.text(`P&L: ${(report.apacComments.pnl / 1000).toFixed(0)}k`, 20, yPosition);
       yPosition += 8;
-      pdf.text(`Volumes: ${report.apacComments.volumes}`, 20, yPosition);
+      pdf.text(`Risk: ${(report.apacComments.risk / 1000).toFixed(0)}k`, 20, yPosition);
+      yPosition += 8;
+      pdf.text(`Volumes: ${(report.apacComments.volumes / 1000).toFixed(0)}M`, 20, yPosition);
       yPosition += 15;
       
       // Sector Summary
@@ -118,8 +120,7 @@ export class PDFExportService {
       yPosition += 8;
       
       report.sectorRecaps.forEach((recap, index) => {
-        const totalPnL = Object.values(recap.dailyPnL).reduce((sum, val) => sum + (val || 0), 0);
-        pdf.text(`• ${recap.sector}: ${(totalPnL / 1000).toFixed(0)}k P&L`, 25, yPosition);
+        pdf.text(`• ${recap.sector}: ${(recap.metrics.pnl / 1000).toFixed(0)}k P&L`, 25, yPosition);
         yPosition += 6;
       });
 

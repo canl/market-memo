@@ -1,16 +1,13 @@
 import React, { useState } from 'react';
 import { EnhancedConsolidatedReport } from '../ConsolidatedReport';
-import { DailyReport } from '../../types';
 
 interface DailySummaryViewProps {
-  report?: DailyReport;
   onExportPDF?: () => void;
   onSendEmail?: () => void;
   onPrint?: () => void;
 }
 
 export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
-  report,
   onExportPDF,
   onSendEmail,
   onPrint
@@ -19,7 +16,6 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
 
   return (
     <EnhancedConsolidatedReport
-      report={report}
       onExportPDF={onExportPDF}
       onSendEmail={onSendEmail}
       onPrint={onPrint}

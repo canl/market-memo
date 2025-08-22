@@ -13,7 +13,7 @@ import {
 
 import { DailyReport } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
-import { formatDate, formatCurrency, formatPnL } from '../utils/formatters';
+import { formatDate, formatCurrency } from '../utils/formatters';
 
 interface ConsolidatedReportViewProps {
   report: DailyReport;
@@ -24,7 +24,7 @@ interface ConsolidatedReportViewProps {
 
 export const ConsolidatedReportView = forwardRef<HTMLDivElement, ConsolidatedReportViewProps>(
   ({ report, onExportPDF, onSendEmail, onPrint }, ref) => {
-    const totalPnL = report.apacComments.pnlCash + report.apacComments.pnlCds;
+    const totalPnL = report.apacComments.pnl;
 
     return (
       <Card>
@@ -109,8 +109,8 @@ export const ConsolidatedReportView = forwardRef<HTMLDivElement, ConsolidatedRep
                     >
                       {formatCurrency(totalPnL)}
                       <Typography component="span" variant="body2" color="text.secondary">
-                        {' '}(Cash: {formatCurrency(report.apacComments.pnlCash)},
-                        CDS: {formatCurrency(report.apacComments.pnlCds)})
+                        {' '}(Risk: {formatCurrency(report.apacComments.risk)},
+                        Volumes: {formatCurrency(report.apacComments.volumes)})
                       </Typography>
                     </Typography>
                   </Grid>
@@ -149,7 +149,7 @@ export const ConsolidatedReportView = forwardRef<HTMLDivElement, ConsolidatedRep
                         Daily P&L
                       </Typography>
                       <Typography variant="body1" paragraph>
-                        {formatPnL(recap.dailyPnL)}
+                        P&L: {formatCurrency(recap.metrics.pnl)}, Risk: {formatCurrency(recap.metrics.risk)}, Volumes: {formatCurrency(recap.metrics.volumes)}
                       </Typography>
                     </Grid>
 

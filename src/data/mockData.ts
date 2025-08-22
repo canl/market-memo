@@ -1,11 +1,10 @@
 import { DailyReport, SectorRecap, APACComments } from '../types';
 
-// Sample APAC comments based on the provided example
+// Sample APAC comments with simplified structure
 export const sampleAPACComments: APACComments = {
-  risk: '82k (-24k)',
-  pnlCash: 175000,
-  pnlCds: -30000,
-  volumes: '268M',
+  pnl: 145000,
+  risk: 82000,
+  volumes: 268000,
   marketCommentary: 'Copr ID unch to 2bps tighter. HY unch to 0.25pt higher. CDS -0.25 to 0.25',
   date: new Date().toISOString().split('T')[0]
 };
@@ -15,10 +14,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   {
     sector: 'Australia IG',
     marketMovesAndFlows: 'Kept constructive sentiment post the headline about Japan tariff to 15% and Ishiba stepping down.',
-    dailyPnL: {
-      usdBonds: 130000,
-      jpyBonds: 40000,
-      cds: 30000
+    metrics: {
+      pnl: 200000,
+      risk: 45000,
+      volumes: 85000
     },
     marketCommentary: 'Spreads are broadly unchanged to 2 tighter with light flows, in Fin senior desk saw continued strong demand in MQGAU 33s and 34s, in T2s desk saw demand in ANZ 5.731 34s and ANZ/ WSTP 35/ 36s. In corporates desk continued to see interest in STOAU 31/ 33s and NBN curve.',
     date: new Date().toISOString().split('T')[0],
@@ -27,10 +26,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   {
     sector: 'Japan IG',
     marketMovesAndFlows: 'Kept constructive sentiment post the headline about Japan tariff to 15% and Ishiba stepping down.',
-    dailyPnL: {
-      usdBonds: 130000,
-      jpyBonds: 40000,
-      cds: 30000
+    metrics: {
+      pnl: 200000,
+      risk: 38000,
+      volumes: 72000
     },
     marketCommentary: 'Japan IG cash spreads continued to be in a constructive tone after Japan holiday with IG (-1/-2), HY (+0.05/+0.15). SoftBank said it and Open Al\'s 500bn Al project struggled to get off ground. Recently issued cash bonds settled the day up in a better sentiment with spreads average (-1.5), HY average (+0.10). Desk continued to see demand in new SoftBank in the long durations. Japan CDS spreads settled the day in a similar tone. CDSI closed at 60(-1/2) with seeing protection sellers with the roll at 6.625(uc) with JGB10YR (-2), TPX (+1), USDJPY at 148(-3/4) post Japan upper house election.',
     date: new Date().toISOString().split('T')[0],
@@ -39,10 +38,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   {
     sector: 'China IG',
     marketMovesAndFlows: 'NA',
-    dailyPnL: {
-      usdBonds: -100000,
-      cnyBonds: 40000,
-      cds: 30000
+    metrics: {
+      pnl: -30000,
+      risk: 52000,
+      volumes: 95000
     },
     marketCommentary: 'A bit of pullback today, closing +3/-1. TW names gave back 3bps on the recent gain, but had RMs adding after the move. TMT side, Syr closed unchanged to 1bp wider, 30yr is still solid though less buying interest today, closed broadly unchanged. HK names were active today. Seeing buyers across perps/bullets on NANFUN/HYSAN. HYSAN 7.2% up 75c with both retail and RMs buying. T2 are broadly unchanged.',
     date: new Date().toISOString().split('T')[0],
@@ -51,10 +50,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   {
     sector: 'SEA IG',
     marketMovesAndFlows: 'NA',
-    dailyPnL: {
-      usdBonds: 100000,
-      myrBonds: 40000,
-      cds: 30000
+    metrics: {
+      pnl: 170000,
+      risk: 42000,
+      volumes: 68000
     },
     marketCommentary: 'The rally in US rates brought profit takers of IG spreads, with PETMK the most actively sold (by US RM then Asia). TOPTB also saw sellers appear while the rest was more two-way.',
     date: new Date().toISOString().split('T')[0],
@@ -63,10 +62,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   {
     sector: 'India IG',
     marketMovesAndFlows: 'NA',
-    dailyPnL: {
-      usdBonds: 130000,
-      inrBonds: 40000,
-      cds: 30000
+    metrics: {
+      pnl: 200000,
+      risk: 35000,
+      volumes: 58000
     },
     marketCommentary: 'Spreads are 1-2 bps tighter but saw profit booking by clients today, desk saw flows across EXIMBK 26/ OILIN, INCIN, POWFIN 27s /TATSON 28s / RECLIN 29s and light two way flows in 10 year while RILIN 52/ 62s were better bid. ATs were 15 cents higher with better demand across both names.',
     date: new Date().toISOString().split('T')[0],
@@ -75,9 +74,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   {
     sector: 'Sovs',
     marketMovesAndFlows: 'NA',
-    dailyPnL: {
-      usdBonds: 150000,
-      cds: 30000
+    metrics: {
+      pnl: 180000,
+      risk: 28000,
+      volumes: 45000
     },
     marketCommentary: 'Two way flows with ETF\'s and Asia RM the most active while international investors shun the tight valuations.',
     date: new Date().toISOString().split('T')[0],
@@ -120,10 +120,9 @@ export const generateHistoricalData = (): DailyReport[] => {
     const report: DailyReport = {
       date: dateString,
       apacComments: {
-        risk: `${50 + dayVariation * 10}k (${isPositiveDay ? '-' : '+'}${5 + dayVariation * 3}k)`,
-        pnlCash: Math.floor((isPositiveDay ? 1 : -1) * (100000 + dayVariation * 50000) * volatilityFactor),
-        pnlCds: Math.floor((isPositiveDay ? -1 : 1) * (20000 + dayVariation * 10000) * volatilityFactor),
-        volumes: `${200 + dayVariation * 30}M`,
+        pnl: Math.floor((isPositiveDay ? 1 : -1) * (100000 + dayVariation * 50000) * volatilityFactor),
+        risk: Math.floor((50000 + dayVariation * 10000) * volatilityFactor),
+        volumes: Math.floor((200000 + dayVariation * 30000) * volatilityFactor),
         marketCommentary: marketSummaries[dayVariation % marketSummaries.length],
         date: dateString
       },
@@ -136,15 +135,10 @@ export const generateHistoricalData = (): DailyReport[] => {
           date: dateString,
           marketMovesAndFlows: `Day ${i + 1}: ${recap.sector} ${isPositiveDay ? 'outperformed' : 'underperformed'} with ${sectorVariation + 1}bps ${isPositiveDay ? 'tightening' : 'widening'}.`,
           marketCommentary: `${recap.sector} - ${isPositiveDay ? 'Constructive' : 'Cautious'} trading session. ${recap.marketCommentary.substring(0, 100)}... [Day ${i + 1} update]`,
-          dailyPnL: {
-            ...recap.dailyPnL,
-            usdBonds: Math.floor(sectorMultiplier * (50000 + sectorVariation * 30000) * volatilityFactor),
-            localBonds: Math.floor(sectorMultiplier * (20000 + sectorVariation * 15000) * volatilityFactor),
-            jpyBonds: Math.floor(sectorMultiplier * (15000 + sectorVariation * 10000) * volatilityFactor),
-            cnyBonds: Math.floor(sectorMultiplier * (25000 + sectorVariation * 12000) * volatilityFactor),
-            myrBonds: Math.floor(sectorMultiplier * (18000 + sectorVariation * 8000) * volatilityFactor),
-            inrBonds: Math.floor(sectorMultiplier * (22000 + sectorVariation * 9000) * volatilityFactor),
-            cds: Math.floor(sectorMultiplier * (10000 + sectorVariation * 5000) * volatilityFactor)
+          metrics: {
+            pnl: Math.floor(sectorMultiplier * (50000 + sectorVariation * 30000) * volatilityFactor),
+            risk: Math.floor((20000 + sectorVariation * 15000) * volatilityFactor),
+            volumes: Math.floor((30000 + sectorVariation * 20000) * volatilityFactor)
           }
         };
       }),

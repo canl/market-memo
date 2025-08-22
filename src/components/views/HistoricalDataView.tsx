@@ -4,9 +4,9 @@ import { EnhancedHistoricalViewer } from '../HistoricalViewer';
 import { DailyReport } from '../../types';
 
 export const HistoricalDataView: React.FC = () => {
-  const handleReportSelect = (report: DailyReport) => {
-    console.log('Selected historical report:', report);
+  const handleReportSelect = (_report: DailyReport) => {
     // Could navigate to a detailed view or open a modal
+    // Future enhancement: implement report detail view
   };
 
   return (

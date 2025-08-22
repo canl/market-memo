@@ -23,18 +23,12 @@ import {
   Email as EmailIcon
 } from '@mui/icons-material';
 
-import { DailyReport, SectorRecap } from '../types';
+import { DailyReport } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
 import { formatDate, formatCurrency } from '../utils/formatters';
 import { DataService } from '../services/dataService';
 
-// Helper function to calculate sector total P&L
-const getSectorTotalPnL = (recap: SectorRecap): number => {
-  const { dailyPnL } = recap;
-  return (dailyPnL.usdBonds || 0) +
-    (dailyPnL.localBonds || dailyPnL.jpyBonds || dailyPnL.cnyBonds || dailyPnL.myrBonds || dailyPnL.inrBonds || 0) +
-    (dailyPnL.cds || 0);
-};
+
 
 interface EnhancedConsolidatedReportProps {
   report?: DailyReport;
@@ -46,10 +40,10 @@ interface EnhancedConsolidatedReportProps {
 }
 
 export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedConsolidatedReportProps>(
-  ({ report: propReport, onExportPDF, onSendEmail, onPrint, selectedDate, onDateChange }, ref) => {
-    const [currentReport, setCurrentReport] = useState<DailyReport | null>(propReport || null);
+  ({ onExportPDF, onSendEmail, onPrint, selectedDate, onDateChange }, ref) => {
+    const [currentReport, setCurrentReport] = useState<DailyReport | null>(null);
     const [availableDates, setAvailableDates] = useState<string[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(true); // Start with loading true
     const [showUpdated, setShowUpdated] = useState<boolean>(false);
 
     const [internalSelectedDate, setInternalSelectedDate] = useState<string>(() => {
@@ -67,17 +61,17 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
     useEffect(() => {
       setIsLoading(true);
 
-      // Get available dates from historical data
+      // Always fetch fresh data - this ensures we get the latest in-memory data for today
       const historicalData = DataService.getHistoricalData();
       const dates = historicalData.map(report => report.date).sort((a, b) => b.localeCompare(a));
       setAvailableDates(dates);
 
-      // Load report based on selected date
-      const foundReport = historicalData.find(r => r.date === internalSelectedDate);
-      setCurrentReport(foundReport || null);
+      // Load report based on selected date (prioritizes live data for today)
+      const foundReport = DataService.getReportByDate(internalSelectedDate);
+      setCurrentReport(foundReport);
 
       setIsLoading(false);
-    }, [propReport, internalSelectedDate]);
+    }, [internalSelectedDate]); // Removed propReport dependency to always fetch fresh data
 
     const handleDateChange = (newDate: string) => {
       setIsLoading(true);
@@ -90,9 +84,8 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
       // Brief loading delay for smooth UX
       setTimeout(() => {
         // Load report for the new date - ALWAYS load when date changes
-        const historicalData = DataService.getHistoricalData();
-        const foundReport = historicalData.find(r => r.date === newDate);
-        setCurrentReport(foundReport || null);
+        const foundReport = DataService.getReportByDate(newDate);
+        setCurrentReport(foundReport);
         setIsLoading(false);
 
         // Show updated indicator briefly
@@ -156,8 +149,6 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
         </Box>
       );
     }
-
-
 
     return (
       <Box sx={{ p: 0 }}>
@@ -348,8 +339,12 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                         <Typography variant="caption" color="text.secondary" fontWeight="bold">
                           OVERALL P&L
                         </Typography>
-                        <Typography variant="h6" fontWeight="bold" color="success.main">
-                          {formatCurrency((currentReport.apacComments.pnlCash || 0) + (currentReport.apacComments.pnlCds || 0))}
+                        <Typography
+                          variant="h6"
+                          fontWeight="bold"
+                          color={(currentReport.apacComments.pnl || 0) >= 0 ? 'success.main' : 'error.main'}
+                        >
+                          {formatCurrency(currentReport.apacComments.pnl || 0)}
                         </Typography>
                       </Box>
                     </Grid>
@@ -360,7 +355,7 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                           RISK
                         </Typography>
                         <Typography variant="h6" fontWeight="bold">
-                          {currentReport.apacComments.risk}
+                          {formatCurrency(currentReport.apacComments.risk)}
                         </Typography>
                       </Box>
                     </Grid>
@@ -371,21 +366,12 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                           VOLUMES
                         </Typography>
                         <Typography variant="h6" fontWeight="bold">
-                          {currentReport.apacComments.volumes}
+                          {formatCurrency(currentReport.apacComments.volumes)}
                         </Typography>
                       </Box>
                     </Grid>
 
-                    <Grid xs={12} sm={3}>
-                      <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'background.paper', borderRadius: 1 }}>
-                        <Typography variant="caption" color="text.secondary" fontWeight="bold">
-                          CASH P&L
-                        </Typography>
-                        <Typography variant="h6" fontWeight="bold" color="primary.main">
-                          {formatCurrency(currentReport.apacComments.pnlCash || 0)}
-                        </Typography>
-                      </Box>
-                    </Grid>
+
                   </Grid>
 
                   {/* Market Moves Summary */}
@@ -450,45 +436,39 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                             <Typography
                               variant="h6"
                               fontWeight="bold"
-                              color={getSectorTotalPnL(recap) >= 0 ? 'success.main' : 'error.main'}
+                              color={(recap.metrics?.pnl || 0) >= 0 ? 'success.main' : 'error.main'}
                             >
-                              {formatCurrency(getSectorTotalPnL(recap))}
+                              {formatCurrency(recap.metrics?.pnl || 0)}
                             </Typography>
                           </Box>
                         </Box>
 
-                        {/* P&L Breakdown */}
+                        {/* Metrics */}
                         <Grid container spacing={2} sx={{ mb: 2 }}>
-                          {recap.dailyPnL.usdBonds !== undefined && (
-                            <Grid xs={6} sm={3}>
-                              <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
-                                <Typography variant="caption" color="text.secondary">USD Bonds</Typography>
-                                <Typography variant="body2" fontWeight="bold">
-                                  {formatCurrency(recap.dailyPnL.usdBonds)}
-                                </Typography>
-                              </Box>
-                            </Grid>
-                          )}
-                          {(recap.dailyPnL.localBonds || recap.dailyPnL.jpyBonds || recap.dailyPnL.cnyBonds || recap.dailyPnL.myrBonds || recap.dailyPnL.inrBonds) !== undefined && (
-                            <Grid xs={6} sm={3}>
-                              <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
-                                <Typography variant="caption" color="text.secondary">Local Bonds</Typography>
-                                <Typography variant="body2" fontWeight="bold">
-                                  {formatCurrency(recap.dailyPnL.localBonds || recap.dailyPnL.jpyBonds || recap.dailyPnL.cnyBonds || recap.dailyPnL.myrBonds || recap.dailyPnL.inrBonds || 0)}
-                                </Typography>
-                              </Box>
-                            </Grid>
-                          )}
-                          {recap.dailyPnL.cds !== undefined && (
-                            <Grid xs={6} sm={3}>
-                              <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
-                                <Typography variant="caption" color="text.secondary">CDS</Typography>
-                                <Typography variant="body2" fontWeight="bold">
-                                  {formatCurrency(recap.dailyPnL.cds)}
-                                </Typography>
-                              </Box>
-                            </Grid>
-                          )}
+                          <Grid xs={12} sm={4}>
+                            <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
+                              <Typography variant="caption" color="text.secondary">P&L</Typography>
+                              <Typography variant="body2" fontWeight="bold" color={(recap.metrics?.pnl || 0) >= 0 ? 'success.main' : 'error.main'}>
+                                {formatCurrency(recap.metrics?.pnl || 0)}
+                              </Typography>
+                            </Box>
+                          </Grid>
+                          <Grid xs={12} sm={4}>
+                            <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
+                              <Typography variant="caption" color="text.secondary">Risk</Typography>
+                              <Typography variant="body2" fontWeight="bold">
+                                {formatCurrency(recap.metrics?.risk || 0)}
+                              </Typography>
+                            </Box>
+                          </Grid>
+                          <Grid xs={12} sm={4}>
+                            <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
+                              <Typography variant="caption" color="text.secondary">Volumes</Typography>
+                              <Typography variant="body2" fontWeight="bold">
+                                {formatCurrency(recap.metrics?.volumes || 0)}
+                              </Typography>
+                            </Box>
+                          </Grid>
                         </Grid>
 
                         {/* Market Moves */}

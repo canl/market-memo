@@ -19,7 +19,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { DailyReport, HistoricalFilter, Sector } from '../types';
 import { SECTORS, SECTOR_LABELS } from '../constants/sectors';
 import { DataService } from '../services/dataService';
-import { formatDate, formatCurrency, formatPnL } from '../utils/formatters';
+import { formatDate, formatCurrency } from '../utils/formatters';
 
 interface HistoricalRecapViewerProps {
   onReportSelect?: (report: DailyReport) => void;
@@ -84,25 +84,25 @@ export const HistoricalRecapViewer: React.FC<HistoricalRecapViewerProps> = ({ on
         date: report.date,
         sector: 'APAC Overall',
         marketMovesAndFlows: 'Overall Comments',
-        dailyPnL: `Cash: ${formatCurrency(report.apacComments.pnlCash)}, CDS: ${formatCurrency(report.apacComments.pnlCds)}`,
-        totalPnL: report.apacComments.pnlCash + report.apacComments.pnlCds,
-        marketCommentary: `Risk: ${report.apacComments.risk}, Volumes: ${report.apacComments.volumes}`,
+        dailyPnL: `P&L: ${formatCurrency(report.apacComments.pnl)}, Risk: ${formatCurrency(report.apacComments.risk)}, Volumes: ${formatCurrency(report.apacComments.volumes)}`,
+        totalPnL: report.apacComments.pnl,
+        marketCommentary: report.apacComments.marketCommentary || '',
         submittedBy: 'APAC Desk',
-        apacRisk: report.apacComments.risk,
-        apacPnL: `${formatCurrency(report.apacComments.pnlCash + report.apacComments.pnlCds)}`,
-        apacVolumes: report.apacComments.volumes
+        apacRisk: formatCurrency(report.apacComments.risk),
+        apacPnL: `${formatCurrency(report.apacComments.pnl)}`,
+        apacVolumes: formatCurrency(report.apacComments.volumes)
       });
 
       // Add sector rows
       report.sectorRecaps.forEach(recap => {
         if (filter.sector === 'All' || filter.sector === recap.sector) {
-          const totalPnL = Object.values(recap.dailyPnL).reduce((sum, val) => sum + (val || 0), 0);
+          const totalPnL = recap.metrics.pnl;
           
           gridData.push({
             date: report.date,
             sector: SECTOR_LABELS[recap.sector],
             marketMovesAndFlows: recap.marketMovesAndFlows,
-            dailyPnL: formatPnL(recap.dailyPnL),
+            dailyPnL: `P&L: ${formatCurrency(recap.metrics.pnl)}, Risk: ${formatCurrency(recap.metrics.risk)}, Volumes: ${formatCurrency(recap.metrics.volumes)}`,
             totalPnL,
             marketCommentary: recap.marketCommentary,
             submittedBy: recap.submittedBy || 'Unknown'

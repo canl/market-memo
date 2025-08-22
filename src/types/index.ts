@@ -1,33 +1,35 @@
 // Sector types
 export type Sector = 'Australia IG' | 'Japan IG' | 'China IG' | 'SEA IG' | 'India IG' | 'Sovs';
 
-// P&L structure for different sectors
-export interface DailyPnL {
-  usdBonds?: number;
-  localBonds?: number;
-  jpyBonds?: number;
-  cnyBonds?: number;
-  myrBonds?: number;
-  inrBonds?: number;
-  cds?: number;
+// Simplified metrics structure for each sector
+export interface SectorMetrics {
+  pnl: number;
+  risk: number;
+  volumes: number;
 }
 
-// Sector-specific recap data
+// Form input metrics (string values for better UX)
+export interface SectorMetricsForm {
+  pnl: string;
+  risk: string;
+  volumes: string;
+}
+
+// Sector-specific recap data with simplified structure
 export interface SectorRecap {
   sector: Sector;
   marketMovesAndFlows: string;
-  dailyPnL: DailyPnL;
+  metrics: SectorMetrics;
   marketCommentary: string;
   date: string;
   submittedBy?: string;
 }
 
-// APAC Overall Comments structure
+// APAC Overall Comments structure with simplified metrics
 export interface APACComments {
-  risk: string;
-  pnlCash: number;
-  pnlCds: number;
-  volumes: string;
+  pnl: number;
+  risk: number;
+  volumes: number;
   marketCommentary?: string;
   date: string;
 }
@@ -48,20 +50,19 @@ export interface HistoricalFilter {
   sector?: Sector | 'All';
 }
 
-// Form state for trader input
+// Form state for trader input with simplified metrics
 export interface TraderFormState {
   selectedSector: Sector;
   marketMovesAndFlows: string;
-  dailyPnL: DailyPnL;
+  metrics: SectorMetricsForm;
   marketCommentary: string;
 }
 
-// Form state for APAC comments
+// Form state for APAC comments with simplified structure
 export interface APACFormState {
-  risk: string;
-  pnlCash: string;
-  pnlCds: string;
-  volumes: string;
+  pnl: number;
+  risk: number;
+  volumes: number;
 }
 
 // Navigation state

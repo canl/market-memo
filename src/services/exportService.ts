@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import { DailyReport } from '../types';
 import { PDFExportService } from './pdfExportService';
 import { SECTOR_LABELS } from '../constants/sectors';
-import { formatDate, formatCurrency, formatPnL } from '../utils/formatters';
+import { formatDate, formatCurrency } from '../utils/formatters';
 
 export class ExportService {
   // Export report as PDF using enhanced PDF service
@@ -10,7 +10,6 @@ export class ExportService {
     try {
       await PDFExportService.exportToPDF(elementRef, report);
     } catch (error) {
-      console.error('Error generating PDF:', error);
       throw new Error('Failed to generate PDF. Please try again.');
     }
   }
@@ -20,7 +19,6 @@ export class ExportService {
     try {
       await PDFExportService.exportHighQuality(elementRef, report);
     } catch (error) {
-      console.error('Error generating high quality PDF:', error);
       throw new Error('Failed to generate PDF. Please try again.');
     }
   }
@@ -61,10 +59,9 @@ export class ExportService {
       addText('APAC Overall Comments', 16, true);
       yPosition += 5;
       
-      const totalPnL = report.apacComments.pnlCash + report.apacComments.pnlCds;
-      addText(`Risk: ${report.apacComments.risk}`);
-      addText(`P&L: ${formatCurrency(totalPnL)} (Cash: ${formatCurrency(report.apacComments.pnlCash)}, CDS: ${formatCurrency(report.apacComments.pnlCds)})`);
-      addText(`Volumes: ${report.apacComments.volumes}`);
+      addText(`P&L: ${formatCurrency(report.apacComments.pnl)}`);
+      addText(`Risk: ${formatCurrency(report.apacComments.risk)}`);
+      addText(`Volumes: ${formatCurrency(report.apacComments.volumes)}`);
       yPosition += 10;
 
       // Sector Recaps
@@ -76,8 +73,8 @@ export class ExportService {
         addText(recap.marketMovesAndFlows || 'No market moves reported.');
         yPosition += 3;
         
-        addText('Daily P&L:', 12, true);
-        addText(formatPnL(recap.dailyPnL));
+        addText('Metrics:', 12, true);
+        addText(`P&L: ${formatCurrency(recap.metrics.pnl)}, Risk: ${formatCurrency(recap.metrics.risk)}, Volumes: ${formatCurrency(recap.metrics.volumes)}`);
         yPosition += 3;
         
         addText('Market Commentary:', 12, true);
@@ -106,16 +103,11 @@ export class ExportService {
   }
 
   // Simulate email sending
-  static simulateEmailSend(report: DailyReport): Promise<void> {
+  static simulateEmailSend(_report: DailyReport): Promise<void> {
     return new Promise((resolve) => {
       // Simulate network delay
       setTimeout(() => {
-        console.log('Email sent successfully:', {
-          to: 'trading-desk@company.com',
-          subject: `APAC Market Memo - ${formatDate(report.date)}`,
-          date: report.date,
-          attachments: [`APAC_Market_Memo_${report.date}.pdf`]
-        });
+        // Email simulation complete
         resolve();
       }, 1500);
     });

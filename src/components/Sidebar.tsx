@@ -11,8 +11,8 @@ import {
   Tooltip
 } from '@mui/material';
 import {
-  TrendingUp as TraderInputIcon,
-  Assessment as DailySummaryIcon,
+  Create as TraderInputIcon,
+  EventNote as DailySummaryIcon,
   History as HistoricalDataIcon
 } from '@mui/icons-material';
 

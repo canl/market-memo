@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import {
   ThemeProvider,
@@ -319,6 +319,11 @@ function AppContent() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const { showSuccess } = useNotification();
 
+  // Clear old data structure on app start
+  useEffect(() => {
+    DataService.clearOldData();
+  }, []);
+
   const theme = createAppTheme(isDarkMode);
 
   // Set theme attribute on document body for CSS targeting
@@ -581,9 +586,7 @@ function AppContent() {
               element={
                 <TraderInputView
                   onSave={handleSectorRecapSave}
-                  onSubmit={handleSectorRecapSave}
                   onAPACSave={handleAPACCommentsSave}
-                  onAPACSubmit={handleAPACCommentsSave}
                 />
               }
             />
@@ -591,7 +594,6 @@ function AppContent() {
               path="/daily-summary"
               element={
                 <DailySummaryView
-                  report={currentReport || undefined}
                   onPrint={handlePrint}
                   onExportPDF={handleExportPDF}
                   onSendEmail={handleSendEmail}
