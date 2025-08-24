@@ -13,7 +13,7 @@ import {
 import {
   Create as TraderInputIcon,
   EventNote as DailySummaryIcon,
-  History as HistoricalDataIcon
+  Insights as HistoricalDataIcon
 } from '@mui/icons-material';
 
 

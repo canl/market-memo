@@ -11,17 +11,53 @@ import {
   MenuItem,
   Unstable_Grid2 as Grid,
   Chip,
-  Alert
+  Alert,
+  useTheme
 } from '@mui/material';
-
 import { AgGridReact } from 'ag-grid-react';
-import { ColDef, GridReadyEvent } from 'ag-grid-community';
-import 'ag-grid-community/styles/ag-grid.css';
-import 'ag-grid-community/styles/ag-theme-alpine.css';
+import { ColDef, GridReadyEvent, ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-community';
 import { DailyReport, HistoricalFilter, Sector } from '../types';
 import { SECTORS, SECTOR_LABELS } from '../constants/sectors';
 import { DataService } from '../services/dataService';
 import { formatDate, formatCurrency } from '../utils/formatters';
+
+// Register AG Grid modules
+ModuleRegistry.registerModules([AllCommunityModule]);
+
+// Create custom themes
+const darkTheme = themeQuartz
+  .withParams({
+    backgroundColor: "#1D2634",
+    browserColorScheme: "dark",
+    chromeBackgroundColor: {
+      ref: "foregroundColor",
+      mix: 0.07,
+      onto: "backgroundColor"
+    },
+    foregroundColor: "#FFF",
+    headerFontSize: 14,
+    fontSize: 13,
+    spacing: 8,
+    borderRadius: 4,
+    wrapperBorderRadius: 8
+  });
+
+const lightTheme = themeQuartz
+  .withParams({
+    backgroundColor: "#FFFFFF",
+    browserColorScheme: "light",
+    chromeBackgroundColor: {
+      ref: "foregroundColor",
+      mix: 0.05,
+      onto: "backgroundColor"
+    },
+    foregroundColor: "#1f2937",
+    headerFontSize: 14,
+    fontSize: 13,
+    spacing: 8,
+    borderRadius: 4,
+    wrapperBorderRadius: 8
+  });
 
 interface EnhancedHistoricalViewerProps {
   onReportSelect?: (report: DailyReport) => void;
@@ -32,18 +68,18 @@ interface GridRowData {
   date: string;
   sector: string;
   marketMovesAndFlows: string;
-  dailyPnL: string;
-  totalPnL: number;
   marketCommentary: string;
+  pnl: number;
+  risk: number;
+  volumes: number;
   submittedBy: string;
-  apacRisk?: string;
-  apacPnL?: string;
-  apacVolumes?: string;
-  apacmarketCommentary?: string;
   reportData?: DailyReport;
 }
 
 export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> = ({ onReportSelect }) => {
+  const theme = useTheme();
+  const isDarkMode = theme.palette.mode === 'dark';
+
   const [historicalData, setHistoricalData] = useState<DailyReport[]>([]);
   const [filter, setFilter] = useState<HistoricalFilter>({
     dateFrom: '',
@@ -60,26 +96,24 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
 
   useEffect(() => {
     const data = DataService.getHistoricalData();
-
     setHistoricalData(data);
 
-    // Set default date range to last 7 days
+    // Set default date range to show recent data
     if (data.length > 0) {
       const latest = new Date(data[0].date);
-      const weekAgo = new Date(latest);
-      weekAgo.setDate(weekAgo.getDate() - 7);
+      const oldest = new Date(data[data.length - 1].date);
 
       const latestStr = latest.toISOString().split('T')[0];
-      const weekAgoStr = weekAgo.toISOString().split('T')[0];
+      const oldestStr = oldest.toISOString().split('T')[0];
 
       setSelectedDateRange({
-        from: weekAgoStr,
+        from: oldestStr,
         to: latestStr
       });
 
       setFilter(prev => ({
         ...prev,
-        dateFrom: weekAgoStr,
+        dateFrom: oldestStr,
         dateTo: latestStr
       }));
     }
@@ -106,30 +140,26 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
         date: report.date,
         sector: 'APAC Overall',
         marketMovesAndFlows: 'Overall Comments',
-        dailyPnL: `P&L: ${formatCurrency(report.apacComments.pnl)}, Risk: ${formatCurrency(report.apacComments.risk)}, Volumes: ${formatCurrency(report.apacComments.volumes)}`,
-        totalPnL: report.apacComments.pnl,
         marketCommentary: report.apacComments.marketCommentary || 'No summary provided',
+        pnl: report.apacComments.pnl,
+        risk: report.apacComments.risk,
+        volumes: report.apacComments.volumes,
         submittedBy: 'APAC Desk',
-        apacRisk: formatCurrency(report.apacComments.risk),
-        apacPnL: `${formatCurrency(report.apacComments.pnl)}`,
-        apacVolumes: formatCurrency(report.apacComments.volumes),
-        apacmarketCommentary: report.apacComments.marketCommentary,
         reportData: report
       });
 
       // Add sector rows
       report.sectorRecaps.forEach(recap => {
         if (filter.sector === 'All' || filter.sector === recap.sector) {
-          const totalPnL = recap.metrics.pnl;
-          
           gridData.push({
             id: `${report.date}-${recap.sector}`,
             date: report.date,
             sector: SECTOR_LABELS[recap.sector],
             marketMovesAndFlows: recap.marketMovesAndFlows,
-            dailyPnL: `P&L: ${formatCurrency(recap.metrics.pnl)}, Risk: ${formatCurrency(recap.metrics.risk)}, Volumes: ${formatCurrency(recap.metrics.volumes)}`,
-            totalPnL,
             marketCommentary: recap.marketCommentary,
+            pnl: recap.metrics.pnl,
+            risk: recap.metrics.risk,
+            volumes: recap.metrics.volumes,
             submittedBy: recap.submittedBy || 'Unknown',
             reportData: report
           });
@@ -146,7 +176,6 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
       if (b.sector === 'APAC Overall' && a.sector !== 'APAC Overall') return 1;
       return a.sector.localeCompare(b.sector);
     });
-
 
     return sortedData;
   }, [historicalData, filter]);
@@ -166,9 +195,9 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
       cellRenderer: (params: any) => {
         const isAPAC = params.value === 'APAC Overall';
         return (
-          <Chip 
-            label={params.value} 
-            size="small" 
+          <Chip
+            label={params.value}
+            size="small"
             color={isAPAC ? 'primary' : 'default'}
             variant={isAPAC ? 'filled' : 'outlined'}
           />
@@ -180,34 +209,37 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
       headerName: 'Market Moves & Flows',
       width: 200,
       wrapText: true,
-      autoHeight: true,
       cellStyle: { whiteSpace: 'normal', lineHeight: '1.4' }
-    },
-    {
-      field: 'dailyPnL',
-      headerName: 'Daily P&L',
-      width: 180,
-      wrapText: true,
-      autoHeight: true
-    },
-    {
-      field: 'totalPnL',
-      headerName: 'Total P&L',
-      width: 120,
-      valueFormatter: (params) => formatCurrency(params.value),
-      cellStyle: (params) => ({
-        color: params.value >= 0 ? 'green' : 'red',
-        fontWeight: 'bold'
-      })
     },
     {
       field: 'marketCommentary',
       headerName: 'Market Commentary',
       flex: 1,
-      minWidth: 300,
+      minWidth: 250,
       wrapText: true,
-      autoHeight: true,
       cellStyle: { whiteSpace: 'normal', lineHeight: '1.4' }
+    },
+    {
+      field: 'pnl',
+      headerName: 'P&L',
+      width: 120,
+      valueFormatter: (params) => formatCurrency(params.value),
+      cellStyle: (params) => ({
+        color: params.value >= 0 ? '#22c55e' : '#ef4444',
+        fontWeight: 'bold'
+      })
+    },
+    {
+      field: 'risk',
+      headerName: 'Risk',
+      width: 120,
+      valueFormatter: (params) => formatCurrency(params.value)
+    },
+    {
+      field: 'volumes',
+      headerName: 'Volume',
+      width: 120,
+      valueFormatter: (params) => formatCurrency(params.value)
     },
     {
       field: 'submittedBy',
@@ -304,29 +336,33 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
               </Alert>
             ) : (
               <Box sx={{ height: 600, width: '100%' }}>
-                <div className="ag-theme-alpine" style={{ height: '100%', width: '100%' }}>
-                  <AgGridReact
-                    rowData={filteredData}
-                    columnDefs={columnDefs}
-                    onGridReady={onGridReady}
-                    pagination={true}
-                    paginationPageSize={20}
-                    domLayout="normal"
-
-                    rowSelection="single"
-                    onRowClicked={(event) => {
-                      if (event.data.reportData && onReportSelect) {
-                        onReportSelect(event.data.reportData);
-                      }
-                    }}
-                    getRowStyle={(params) => {
-                      if (params.data.sector === 'APAC Overall') {
-                        return { backgroundColor: '#334155', fontWeight: 'bold' };
-                      }
-                      return undefined;
-                    }}
-                  />
-                </div>
+                <AgGridReact
+                  theme={isDarkMode ? darkTheme : lightTheme}
+                  rowData={filteredData}
+                  columnDefs={columnDefs}
+                  onGridReady={onGridReady}
+                  pagination={true}
+                  paginationPageSize={20}
+                  domLayout="normal"
+                  rowHeight={50}
+                  headerHeight={40}
+                  rowSelection="single"
+                  onRowClicked={(event) => {
+                    if (event.data.reportData && onReportSelect) {
+                      onReportSelect(event.data.reportData);
+                    }
+                  }}
+                  getRowStyle={(params) => {
+                    if (params.data.sector === 'APAC Overall') {
+                      return {
+                        backgroundColor: isDarkMode ? '#1e293b' : '#f1f5f9',
+                        fontWeight: 'bold',
+                        color: isDarkMode ? '#e2e8f0' : '#334155'
+                      };
+                    }
+                    return undefined;
+                  }}
+                />
               </Box>
             )}
           </CardContent>

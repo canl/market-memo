@@ -296,10 +296,7 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
                   <Box>
                     <Typography variant="body2" fontWeight={600}>
                       Sector Input
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Individual sector recaps
-                    </Typography>
+                    </Typography>                    
                   </Box>
                 }
                 value="sector"
@@ -309,10 +306,7 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
                   <Box>
                     <Typography variant="body2" fontWeight={600}>
                       APAC Overall
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Consolidated comments
-                    </Typography>
+                    </Typography>                    
                   </Box>
                 }
                 value="apac"
