@@ -182,8 +182,6 @@ export class PDFExportService {
 
       // Remove loading element
       document.body.removeChild(loadingElement);
-
-      console.log(`PDF exported successfully: ${filename}`);
       
     } catch (error) {
       console.error('Error exporting PDF:', error);

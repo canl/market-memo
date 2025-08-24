@@ -95,25 +95,7 @@ textarea::-webkit-calendar-picker-indicator {
   }
 }
 
-/* AG Grid custom styling */
-.ag-theme-alpine {
-  --ag-header-background-color: #334155;
-  --ag-header-foreground-color: #f8fafc;
-  --ag-header-cell-hover-background-color: #475569;
-  --ag-row-hover-color: rgba(248, 250, 252, 0.05);
-  --ag-selected-row-background-color: #2563eb;
-  --ag-background-color: #1e293b;
-  --ag-foreground-color: #f8fafc;
-  --ag-border-color: #334155;
-}
 
-.ag-theme-alpine .ag-header-cell {
-  font-weight: 600;
-}
-
-.ag-theme-alpine .ag-row {
-  border-bottom: 1px solid #334155;
-}
 
 /* Custom scrollbar for better appearance */
 ::-webkit-scrollbar {
