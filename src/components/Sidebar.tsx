@@ -11,13 +11,14 @@ import {
   Tooltip
 } from '@mui/material';
 import {
+  Dashboard as DashboardIcon,
   Create as TraderInputIcon,
   EventNote as DailySummaryIcon,
   Insights as HistoricalDataIcon
 } from '@mui/icons-material';
 
 
-export type NavigationView = 'trader-input' | 'daily-consolidation' | 'historical-data';
+export type NavigationView = 'dashboard' | 'trader-input' | 'daily-consolidation' | 'historical-data';
 
 interface SidebarProps {
   open: boolean;
@@ -35,6 +36,13 @@ interface NavigationItem {
 }
 
 const navigationItems: NavigationItem[] = [
+  {
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: <DashboardIcon />,
+    description: 'Overview of all sectors and quick actions',
+    path: '/dashboard'
+  },
   {
     id: 'trader-input',
     label: 'Trader Input',

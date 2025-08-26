@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import {
   ThemeProvider,
   createTheme,
@@ -18,7 +18,7 @@ import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
 import { DailyReport, SectorRecap, APACComments } from './types';
 import { Sidebar } from './components/Sidebar';
-import { TraderInputView, DailySummaryView, HistoricalDataView } from './components/views';
+import { DashboardView, TraderInputView, DailySummaryView, HistoricalDataView } from './components/views';
 import { NotificationProvider, useNotification } from './components/NotificationProvider';
 import { DataService } from './services/dataService';
 import './App.css';
@@ -314,6 +314,7 @@ const createAppTheme = (isDarkMode: boolean) => createTheme({
 });
 
 function AppContent() {
+  const navigate = useNavigate();
   const [currentReport, setCurrentReport] = useState<DailyReport | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(true);
@@ -580,7 +581,18 @@ function AppContent() {
           }}
         >
           <Routes>
-            <Route path="/" element={<Navigate to="/trader-input" replace />} />
+            <Route path="/" element={<Navigate to="/dashboard" replace />} />
+            <Route
+              path="/dashboard"
+              element={
+                <DashboardView
+                  onNavigateToReports={() => navigate('/daily-summary')}
+                  onNavigateToHistory={() => navigate('/historical-data')}
+                  onSectorSave={handleSectorRecapSave}
+                  onAPACSave={handleAPACCommentsSave}
+                />
+              }
+            />
             <Route
               path="/trader-input"
               element={
