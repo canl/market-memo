@@ -22,6 +22,7 @@ import {
 import { Sector, SectorRecap, TraderFormState, APACComments, InputMode, SectorMetrics } from '../types';
 import { SECTORS, SECTOR_LABELS } from '../constants/sectors';
 import { DataService, InMemoryStorage } from '../services/dataService';
+import { RichTextEditor } from './RichTextEditor';
 
 // Constants
 const SAVE_STATUS_TIMEOUT = {
@@ -467,19 +468,23 @@ export const EnhancedTraderInput: React.FC<EnhancedTraderInputProps> = ({
                 </Grid>
 
                 <Grid xs={12}>
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    label="APAC Market Summary"
-                    value={apacFormState.marketCommentary}
-                    onChange={(e) => setApacFormState(prev => ({
-                      ...prev,
-                      marketCommentary: e.target.value
-                    }))}
-                    placeholder="Provide overall APAC market commentary and key themes..."
-                    helperText="This summary will be visible to all traders and can be edited by anyone"
-                  />
+                  <Box>
+                    <Typography variant="subtitle1" gutterBottom>
+                      APAC Market Summary
+                    </Typography>
+                    <RichTextEditor
+                      value={apacFormState.marketCommentary}
+                      onChange={(value) => setApacFormState(prev => ({
+                        ...prev,
+                        marketCommentary: value
+                      }))}
+                      placeholder="Provide overall APAC market commentary and key themes..."
+                      height={150}
+                    />
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block' }}>
+                      This summary will be visible to all traders and can be edited by anyone
+                    </Typography>
+                  </Box>
                 </Grid>
               </Grid>
             )}

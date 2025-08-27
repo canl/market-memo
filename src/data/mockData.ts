@@ -1,12 +1,12 @@
 import { DailyReport, SectorRecap, APACComments } from '../types';
 
-// Sample APAC comments with simplified structure
+// Sample APAC comments with simplified structure (for historical data only)
 export const sampleAPACComments: APACComments = {
   pnl: 145000,
   risk: 82000,
   volumes: 268000,
   marketCommentary: 'Copr ID unch to 2bps tighter. HY unch to 0.25pt higher. CDS -0.25 to 0.25',
-  date: new Date().toISOString().split('T')[0]
+  date: '2024-08-26' // Use a past date, not today
 };
 
 // Sample sector recaps based on the provided example
@@ -20,7 +20,7 @@ export const sampleSectorRecaps: SectorRecap[] = [
       volumes: 85000
     },
     marketCommentary: 'Spreads are broadly unchanged to 2 tighter with light flows, in Fin senior desk saw continued strong demand in MQGAU 33s and 34s, in T2s desk saw demand in ANZ 5.731 34s and ANZ/ WSTP 35/ 36s. In corporates desk continued to see interest in STOAU 31/ 33s and NBN curve.',
-    date: new Date().toISOString().split('T')[0],
+    date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader A'
   },
   {
@@ -32,7 +32,7 @@ export const sampleSectorRecaps: SectorRecap[] = [
       volumes: 72000
     },
     marketCommentary: 'Japan IG cash spreads continued to be in a constructive tone after Japan holiday with IG (-1/-2), HY (+0.05/+0.15). SoftBank said it and Open Al\'s 500bn Al project struggled to get off ground. Recently issued cash bonds settled the day up in a better sentiment with spreads average (-1.5), HY average (+0.10). Desk continued to see demand in new SoftBank in the long durations. Japan CDS spreads settled the day in a similar tone. CDSI closed at 60(-1/2) with seeing protection sellers with the roll at 6.625(uc) with JGB10YR (-2), TPX (+1), USDJPY at 148(-3/4) post Japan upper house election.',
-    date: new Date().toISOString().split('T')[0],
+    date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader B'
   },
   {
@@ -44,7 +44,7 @@ export const sampleSectorRecaps: SectorRecap[] = [
       volumes: 95000
     },
     marketCommentary: 'A bit of pullback today, closing +3/-1. TW names gave back 3bps on the recent gain, but had RMs adding after the move. TMT side, Syr closed unchanged to 1bp wider, 30yr is still solid though less buying interest today, closed broadly unchanged. HK names were active today. Seeing buyers across perps/bullets on NANFUN/HYSAN. HYSAN 7.2% up 75c with both retail and RMs buying. T2 are broadly unchanged.',
-    date: new Date().toISOString().split('T')[0],
+    date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader C'
   },
   {
@@ -56,7 +56,7 @@ export const sampleSectorRecaps: SectorRecap[] = [
       volumes: 68000
     },
     marketCommentary: 'The rally in US rates brought profit takers of IG spreads, with PETMK the most actively sold (by US RM then Asia). TOPTB also saw sellers appear while the rest was more two-way.',
-    date: new Date().toISOString().split('T')[0],
+    date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader D'
   },
   {
@@ -68,7 +68,7 @@ export const sampleSectorRecaps: SectorRecap[] = [
       volumes: 58000
     },
     marketCommentary: 'Spreads are 1-2 bps tighter but saw profit booking by clients today, desk saw flows across EXIMBK 26/ OILIN, INCIN, POWFIN 27s /TATSON 28s / RECLIN 29s and light two way flows in 10 year while RILIN 52/ 62s were better bid. ATs were 15 cents higher with better demand across both names.',
-    date: new Date().toISOString().split('T')[0],
+    date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader E'
   },
   {
@@ -80,7 +80,7 @@ export const sampleSectorRecaps: SectorRecap[] = [
       volumes: 45000
     },
     marketCommentary: 'Two way flows with ETF\'s and Asia RM the most active while international investors shun the tight valuations.',
-    date: new Date().toISOString().split('T')[0],
+    date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader F'
   }
 ];
@@ -104,7 +104,7 @@ export const generateHistoricalData = (): DailyReport[] => {
     'Profit-taking emerged after recent rally. Spreads 1-2bps wider but underlying tone remains constructive.'
   ];
 
-  for (let i = 0; i < 30; i++) {
+  for (let i = 1; i < 31; i++) { // Start from i=1 to exclude today
     const date = new Date(today);
     date.setDate(date.getDate() - i);
     const dateString = date.toISOString().split('T')[0];

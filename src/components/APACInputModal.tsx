@@ -5,7 +5,6 @@ import {
   DialogContent,
   DialogActions,
   Button,
-  TextField,
   Box,
   Typography,
   Chip,
@@ -17,6 +16,7 @@ import {
 } from '@mui/icons-material';
 import { APACComments } from '../types';
 import { DataService } from '../services/dataService';
+import { RichTextEditor } from './RichTextEditor';
 
 interface APACInputModalProps {
   open: boolean;
@@ -34,9 +34,10 @@ export const APACInputModal: React.FC<APACInputModalProps> = ({
 
   useEffect(() => {
     if (open) {
-      // Load existing APAC commentary if available
-      const currentReport = DataService.getCurrentReport();
-      setMarketCommentary(currentReport?.apacComments?.marketCommentary || '');
+      // Load existing APAC commentary if available (same as TraderInput)
+      const today = new Date().toISOString().split('T')[0];
+      const draft = DataService.getDraftAPACComments(today);
+      setMarketCommentary(draft?.marketCommentary || '');
       setSaveStatus('idle');
     }
   }, [open]);
@@ -44,22 +45,26 @@ export const APACInputModal: React.FC<APACInputModalProps> = ({
   const handleSave = async () => {
     setSaveStatus('saving');
     try {
-      // Get current report to calculate aggregated metrics
-      const currentReport = DataService.getCurrentReport();
-      const aggregatedMetrics = currentReport?.sectorRecaps.reduce((acc, recap) => ({
-        pnl: acc.pnl + recap.metrics.pnl,
-        risk: acc.risk + recap.metrics.risk,
-        volumes: acc.volumes + recap.metrics.volumes
+      const today = new Date().toISOString().split('T')[0];
+
+      // Calculate aggregated metrics from all sectors (same as TraderInput)
+      const todaysReport = DataService.getReportByDate(today);
+      const aggregatedMetrics = todaysReport?.sectorRecaps.reduce((acc, recap) => ({
+        pnl: acc.pnl + (recap.metrics?.pnl || 0),
+        risk: acc.risk + (recap.metrics?.risk || 0),
+        volumes: acc.volumes + (recap.metrics?.volumes || 0)
       }), { pnl: 0, risk: 0, volumes: 0 }) || { pnl: 0, risk: 0, volumes: 0 };
 
       const comments: APACComments = {
-        date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
+        date: today,
         pnl: aggregatedMetrics.pnl,
         risk: aggregatedMetrics.risk,
         volumes: aggregatedMetrics.volumes,
         marketCommentary: marketCommentary
       };
 
+      // Save using the same method as TraderInput
+      DataService.saveDraftAPACComments(comments);
       onSave(comments);
       setSaveStatus('saved');
 
@@ -140,12 +145,9 @@ export const APACInputModal: React.FC<APACInputModalProps> = ({
             Financial metrics (P&L, Risk, Volume) are automatically aggregated from sector inputs.
           </Typography>
 
-          <TextField
-            fullWidth
-            multiline
-            rows={10}
+          <RichTextEditor
             value={marketCommentary}
-            onChange={(e) => setMarketCommentary(e.target.value)}
+            onChange={setMarketCommentary}
             placeholder="Enter APAC regional market commentary and analysis...
 
 Examples:
@@ -154,14 +156,7 @@ Examples:
 • Cross-sector insights and correlations
 • Major market drivers and events
 • Regional outlook and expectations"
-            variant="outlined"
-            autoFocus
-            sx={{
-              '& .MuiInputBase-root': {
-                fontSize: '1rem',
-                lineHeight: 1.6
-              }
-            }}
+            height={250}
           />
         </Box>
       </DialogContent>

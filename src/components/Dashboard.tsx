@@ -13,18 +13,20 @@ import {
   Avatar,
   useTheme,
   alpha,
-  TextField
+  TextField,
+  Collapse,
+  Divider
 } from '@mui/material';
 import {
-  Edit as EditIcon,
   TrendingUp as TrendingUpIcon,
   TrendingDown as TrendingDownIcon,
   Assessment as ReportIcon,
   History as HistoryIcon,
-
   CheckCircle as CheckIcon,
-  Schedule as PendingIcon
+  ExpandMore as ExpandMoreIcon,
+  ExpandLess as ExpandLessIcon
 } from '@mui/icons-material';
+import { RichTextDisplay } from './RichTextDisplay';
 import { Sector, SectorRecap } from '../types';
 import { SECTORS, SECTOR_LABELS } from '../constants/sectors';
 import { DataService } from '../services/dataService';
@@ -89,6 +91,19 @@ export const Dashboard: React.FC<DashboardProps> = ({
     totalSectors: SECTORS.length
   });
   const [apacCommentary, setApacCommentary] = useState<string>('');
+  const [expandedCards, setExpandedCards] = useState<Set<Sector>>(new Set());
+
+  const toggleCardExpansion = (sector: Sector) => {
+    setExpandedCards(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(sector)) {
+        newSet.delete(sector);
+      } else {
+        newSet.add(sector);
+      }
+      return newSet;
+    });
+  };
 
   const loadDashboardData = useCallback(() => {
     const report = DataService.getReportByDate(selectedDate);
@@ -138,33 +153,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'completed': return <CheckIcon />;
-      case 'draft': return <EditIcon />;
-      default: return <PendingIcon />;
-    }
-  };
+
 
   const completionPercentage = (totalMetrics.completedSectors / totalMetrics.totalSectors) * 100;
 
   return (
     <Box sx={{ p: 3, minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* Header Section */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" fontWeight="bold" gutterBottom>
-          Trading Dashboard
-        </Typography>
-        <Typography variant="h6" color="text.secondary" gutterBottom>
-          {new Date(selectedDate).toLocaleDateString('en-US', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-          })}
-        </Typography>
-      </Box>
-
       {/* Date Navigation */}
       <Paper sx={{ p: 2, mb: 4 }}>
         <Grid container spacing={3} alignItems="center">
@@ -294,19 +288,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
           </Box>
 
           {apacCommentary ? (
-            <Typography
-              variant="body1"
-              color="text.primary"
+            <RichTextDisplay
+              content={apacCommentary}
               sx={{
                 p: 2,
                 bgcolor: alpha(theme.palette.background.paper, 0.5),
                 borderRadius: 1,
                 border: `1px solid ${alpha(theme.palette.divider, 0.5)}`,
-                fontStyle: 'italic'
+                fontStyle: 'italic',
+                color: 'text.primary'
               }}
-            >
-              {apacCommentary}
-            </Typography>
+            />
           ) : (
             <Box
               sx={{
@@ -331,80 +323,133 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </Typography>
       
       <Grid container spacing={3} sx={{ mb: 4 }}>
-        {sectorData.map((card) => (
-          <Grid item xs={12} sm={6} md={4} lg={3} key={card.sector}>
-            <Card 
-              sx={{ 
-                height: '100%',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease-in-out',
-                '&:hover': {
-                  transform: 'translateY(-4px)',
-                  boxShadow: theme.shadows[8]
-                },
-                border: card.status === 'completed' ? `2px solid ${theme.palette.success.main}` : 'none'
-              }}
-              onClick={() => onSectorEdit(card.sector)}
-            >
-              <CardContent>
-                <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-                  <Chip 
-                    label={card.label}
-                    size="small"
-                    sx={{ 
-                      bgcolor: alpha(getStatusColor(card.status), 0.1),
-                      color: getStatusColor(card.status),
-                      fontWeight: 'bold'
-                    }}
-                  />
-                  <IconButton 
-                    size="small" 
-                    sx={{ color: getStatusColor(card.status) }}
-                  >
-                    {getStatusIcon(card.status)}
-                  </IconButton>
-                </Box>
+        {sectorData.map((card) => {
+          const isExpanded = expandedCards.has(card.sector);
+          return (
+            <Grid item xs={12} sm={6} md={6} lg={4} key={card.sector}>
+              <Card
+                sx={{
+                  cursor: 'pointer',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    boxShadow: theme.shadows[8],
+                    transform: 'translateY(-2px)'
+                  },
+                  border: card.status === 'completed' ? `2px solid ${theme.palette.success.main}` : `1px solid ${alpha(theme.palette.divider, 0.12)}`
+                }}
+                onClick={() => onSectorEdit(card.sector)}
+              >
+                <CardContent sx={{ pb: 1 }}>
+                  {/* Header */}
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
+                    <Typography variant="h6" fontWeight="bold">
+                      {card.label}
+                    </Typography>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Chip
+                        label={card.status === 'completed' ? 'Complete' : 'Pending'}
+                        size="small"
+                        sx={{
+                          bgcolor: alpha(getStatusColor(card.status), 0.1),
+                          color: getStatusColor(card.status),
+                          fontWeight: 'bold'
+                        }}
+                      />
+                      <IconButton
+                        size="small"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCardExpansion(card.sector);
+                        }}
+                        sx={{
+                          color: 'text.secondary',
+                          '&:hover': {
+                            bgcolor: alpha(theme.palette.action.hover, 0.5)
+                          }
+                        }}
+                      >
+                        {isExpanded ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+                      </IconButton>
+                    </Box>
+                  </Box>
 
-                <Box mb={2}>
-                  <Typography variant="h6" fontWeight="bold" color={card.pnl >= 0 ? 'success.main' : 'error.main'}>
-                    {formatPnL(card.pnl)}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    P&L
-                  </Typography>
-                </Box>
+                  {/* Metrics Section */}
+                  <Box mb={2}>
+                    <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
+                      Metrics:
+                    </Typography>
+                    <Box display="flex" flexWrap="wrap" gap={2}>
+                      <Typography variant="body2" color={card.pnl >= 0 ? 'success.main' : 'error.main'} fontWeight="bold">
+                        P&L: {formatPnL(card.pnl)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Risk: {formatRisk(card.risk)}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        Volume: {formatVolume(card.volumes)}
+                      </Typography>
+                    </Box>
+                  </Box>
 
-                <Box display="flex" justifyContent="space-between" mb={1}>
-                  <Typography variant="body2" color="text.secondary">
-                    Risk: {formatRisk(card.risk)}
-                  </Typography>
-                </Box>
-                
-                <Box display="flex" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary">
-                    Volume: {formatVolume(card.volumes)}
-                  </Typography>
-                </Box>
+                  {/* Expandable Content */}
+                  <Collapse in={isExpanded}>
+                    <Divider sx={{ mb: 2 }} />
 
-                {card.recap?.marketCommentary && (
-                  <Typography 
-                    variant="caption" 
-                    color="text.secondary" 
-                    sx={{ 
-                      mt: 1, 
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden'
-                    }}
-                  >
-                    {card.recap.marketCommentary}
-                  </Typography>
-                )}
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+                    {/* Market Moves & Flows */}
+                    {card.recap?.marketMovesAndFlows && (
+                      <Box mb={2}>
+                        <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
+                          Market Moves & Flows:
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {card.recap.marketMovesAndFlows}
+                        </Typography>
+                      </Box>
+                    )}
+
+                    {/* Market Commentary */}
+                    {card.recap?.marketCommentary && (
+                      <Box mb={2}>
+                        <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
+                          Market Commentary:
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {card.recap.marketCommentary}
+                        </Typography>
+                      </Box>
+                    )}
+
+
+                  </Collapse>
+
+                  {/* Preview for Collapsed State */}
+                  {!isExpanded && (
+                    <Box mt={1}>
+                      {card.recap?.marketCommentary ? (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{
+                            display: '-webkit-box',
+                            WebkitLineClamp: 1,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          {card.recap.marketCommentary}
+                        </Typography>
+                      ) : (
+                        <Typography variant="caption" color="text.disabled">
+                          Click to add details...
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
+                </CardContent>
+              </Card>
+            </Grid>
+          );
+        })}
       </Grid>
 
       {/* Quick Actions */}

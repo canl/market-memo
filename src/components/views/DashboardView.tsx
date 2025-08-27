@@ -64,6 +64,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
   const handleAPACSave = (comments: APACComments) => {
     onAPACSave(comments);
+    // Trigger dashboard refresh (same as sector save)
+    setRefreshTrigger(prev => prev + 1);
     // Modal will close automatically after save
   };
 
