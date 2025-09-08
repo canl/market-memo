@@ -22,6 +22,7 @@ import { Sector, SectorRecap, MarketMovesAndFlowsForm } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
 import { DataService } from '../services/dataService';
 import { formatCurrency, parseNumericInput, formatNumericInput } from '../utils/formatters';
+import { RichTextEditor } from './RichTextEditor';
 
 interface SectorInputModalProps {
   open: boolean;
@@ -329,14 +330,21 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
             <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
               Market Commentary
             </Typography>
-            <TextField
-              fullWidth
-              multiline
-              rows={6}
+            <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
+              Provide detailed market commentary and analysis with rich text formatting support.
+            </Typography>
+            <RichTextEditor
               value={formData.marketCommentary}
-              onChange={(e) => setFormData(prev => ({ ...prev, marketCommentary: e.target.value }))}
-              placeholder="Provide detailed market commentary and analysis..."
-              variant="outlined"
+              onChange={(value) => setFormData(prev => ({ ...prev, marketCommentary: value }))}
+              placeholder="Enter detailed market commentary and analysis...
+
+Examples:
+• Key market movements and trends
+• Sector-specific insights and drivers
+• Notable trades and market events
+• Risk factors and outlook
+• Technical analysis and levels"
+              height={200}
             />
           </Grid>
         </Grid>

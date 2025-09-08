@@ -154,7 +154,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
-
+  // Sector grouping for better organization
+  const sectorGroups = [
+    {
+      title: 'Investment Grade',
+      sectors: ['Australia IG', 'Korea IG', 'China IG', 'SEA IG', 'India IG'] as Sector[]
+    },
+    {
+      title: 'High Yield & Sovereigns',
+      sectors: ['Japan', 'Asia Sovs', 'China HY', 'Non-China HY', 'CDS'] as Sector[]
+    }
+  ];
 
   const completionPercentage = (totalMetrics.completedSectors / totalMetrics.totalSectors) * 100;
 
@@ -319,41 +329,56 @@ export const Dashboard: React.FC<DashboardProps> = ({
       </Card>
 
       {/* Sector Cards Grid */}
-      <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 3 }}>
+      <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 2 }}>
         Sector Overview
       </Typography>
-      
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        {sectorData.map((card) => {
-          const isExpanded = expandedCards.has(card.sector);
-          return (
-            <Grid item xs={12} sm={6} md={6} lg={4} key={card.sector}>
+      <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
+        Click on any sector card to input market data and commentary
+      </Typography>
+
+      {sectorGroups.map((group, groupIndex) => (
+        <Box key={group.title} sx={{ mb: 4 }}>
+          <Typography variant="h6" fontWeight="bold" color="text.primary" sx={{ mb: 2, fontSize: '1.1rem' }}>
+            {group.title}
+          </Typography>
+          <Grid container spacing={2.5} sx={{ mb: 3 }}>
+            {sectorData
+              .filter(card => group.sectors.includes(card.sector))
+              .map((card) => {
+                const isExpanded = expandedCards.has(card.sector);
+                return (
+                  <Grid item xs={12} sm={6} md={4} lg={3} xl={2.4} key={card.sector}>
               <Card
                 sx={{
                   cursor: 'pointer',
                   transition: 'all 0.2s ease-in-out',
+                  height: '100%',
+                  display: 'flex',
+                  flexDirection: 'column',
                   '&:hover': {
-                    boxShadow: theme.shadows[8],
-                    transform: 'translateY(-2px)'
+                    boxShadow: theme.shadows[6],
+                    transform: 'translateY(-1px)'
                   },
                   border: card.status === 'completed' ? `2px solid ${theme.palette.success.main}` : `1px solid ${alpha(theme.palette.divider, 0.12)}`
                 }}
                 onClick={() => onSectorEdit(card.sector)}
               >
-                <CardContent sx={{ pb: 1 }}>
+                <CardContent sx={{ pb: 1.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
                   {/* Header */}
-                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={2}>
-                    <Typography variant="h6" fontWeight="bold">
+                  <Box display="flex" alignItems="center" justifyContent="space-between" mb={1.5}>
+                    <Typography variant="subtitle1" fontWeight="bold" sx={{ fontSize: '1rem' }}>
                       {card.label}
                     </Typography>
-                    <Box display="flex" alignItems="center" gap={1}>
+                    <Box display="flex" alignItems="center" gap={0.5}>
                       <Chip
                         label={card.status === 'completed' ? 'Complete' : 'Pending'}
                         size="small"
                         sx={{
                           bgcolor: alpha(getStatusColor(card.status), 0.1),
                           color: getStatusColor(card.status),
-                          fontWeight: 'bold'
+                          fontWeight: 'bold',
+                          fontSize: '0.75rem',
+                          height: 24
                         }}
                       />
                       <IconButton
@@ -375,29 +400,29 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   </Box>
 
                   {/* Market Moves & Flows Section */}
-                  <Box mb={2}>
-                    <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
-                      Market Moves & Flows:
+                  <Box mb={1.5}>
+                    <Typography variant="caption" fontWeight="bold" color="text.primary" sx={{ fontSize: '0.8rem' }}>
+                      Market Moves & Flows
                     </Typography>
-                    <Typography variant="body2" color="text.secondary">
+                    <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9rem', mt: 0.5 }}>
                       {formatMarketMovesAndFlows(card.recap?.marketMovesAndFlows || { lower: undefined, higher: undefined })}
                     </Typography>
                   </Box>
 
                   {/* Metrics Section */}
-                  <Box mb={2}>
-                    <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
-                      Metrics:
+                  <Box mb={1.5} sx={{ flex: 1 }}>
+                    <Typography variant="caption" fontWeight="bold" color="text.primary" sx={{ fontSize: '0.8rem', mb: 0.5, display: 'block' }}>
+                      Metrics
                     </Typography>
-                    <Box display="flex" flexWrap="wrap" gap={2}>
-                      <Typography variant="body2" color={card.pnl >= 0 ? 'success.main' : 'error.main'} fontWeight="bold">
+                    <Box display="flex" flexWrap="wrap" gap={1.5} justifyContent="space-between">
+                      <Typography variant="body2" color={card.pnl >= 0 ? 'success.main' : 'error.main'} fontWeight="bold" sx={{ fontSize: '0.8rem' }}>
                         P&L: {formatPnL(card.pnl)}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
                         Risk: {formatRisk(card.risk)}
                       </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        Volume: {formatVolume(card.volumes)}
+                      <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.8rem' }}>
+                        Vol: {formatVolume(card.volumes)}
                       </Typography>
                     </Box>
                   </Box>
@@ -412,9 +437,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
                           Market Commentary:
                         </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {card.recap.marketCommentary}
-                        </Typography>
+                        <RichTextDisplay
+                          content={card.recap.marketCommentary}
+                          sx={{
+                            fontSize: '0.875rem',
+                            color: 'text.secondary',
+                            '& p': { margin: '0.5rem 0' },
+                            '& ul, & ol': { paddingLeft: '1.5rem', margin: '0.5rem 0' },
+                            '& li': { marginBottom: '0.25rem' }
+                          }}
+                        />
                       </Box>
                     )}
 
@@ -435,7 +467,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
                             overflow: 'hidden'
                           }}
                         >
-                          {card.recap.marketCommentary}
+                          {/* Strip markdown formatting for preview */}
+                          {card.recap.marketCommentary.replace(/[*_#\-+[\]]/g, '').trim()}
                         </Typography>
                       ) : (
                         <Typography variant="caption" color="text.disabled">
@@ -449,7 +482,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
             </Grid>
           );
         })}
-      </Grid>
+          </Grid>
+        </Box>
+      ))}
 
       {/* Quick Actions */}
       <Paper 

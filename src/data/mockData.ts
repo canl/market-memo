@@ -27,7 +27,7 @@ export const sampleSectorRecaps: SectorRecap[] = [
     submittedBy: 'Trader A'
   },
   {
-    sector: 'Japan IG',
+    sector: 'Japan',
     marketMovesAndFlows: {
       lower: 0,
       higher: 1.5
@@ -87,7 +87,7 @@ export const sampleSectorRecaps: SectorRecap[] = [
     submittedBy: 'Trader E'
   },
   {
-    sector: 'Sovs',
+    sector: 'Asia Sovs',
     marketMovesAndFlows: {
       lower: undefined,
       higher: 1
