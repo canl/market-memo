@@ -4,8 +4,6 @@
 
 A comprehensive web application designed for credit trading desks to streamline daily market reporting, P&L tracking, and sector analysis across APAC markets.
 
-![Credit Market Memo](public/memo.png)
-
 ## 🎯 **Overview**
 
 Credit Market Memo is a professional trading desk application that enables traders to efficiently create, manage, and distribute daily market reports. Built with modern web technologies, it provides a seamless experience for capturing market insights, tracking P&L performance, and generating consolidated reports for distribution to trading teams and management.

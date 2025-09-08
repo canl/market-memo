@@ -12,13 +12,12 @@ import {
 } from '@mui/material';
 import {
   Dashboard as DashboardIcon,
-  Create as TraderInputIcon,
   EventNote as DailySummaryIcon,
   Insights as HistoricalDataIcon
 } from '@mui/icons-material';
 
 
-export type NavigationView = 'dashboard' | 'trader-input' | 'daily-consolidation' | 'historical-data';
+export type NavigationView = 'dashboard' | 'daily-consolidation' | 'historical-data';
 
 interface SidebarProps {
   open: boolean;
@@ -42,13 +41,6 @@ const navigationItems: NavigationItem[] = [
     icon: <DashboardIcon />,
     description: 'Overview of all sectors and quick actions',
     path: '/dashboard'
-  },
-  {
-    id: 'trader-input',
-    label: 'Trader Input',
-    icon: <TraderInputIcon />,
-    description: 'Enter daily market recaps and P&L data',
-    path: '/trader-input'
   },
   {
     id: 'daily-consolidation',
@@ -75,7 +67,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const getCurrentView = (): NavigationView => {
     const currentPath = location.pathname;
     const item = navigationItems.find(item => item.path === currentPath);
-    return item?.id || 'trader-input';
+    return item?.id || 'dashboard';
   };
 
   const currentView = getCurrentView();

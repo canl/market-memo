@@ -67,7 +67,7 @@ export interface APACFormState {
 
 // Navigation state
 export type ViewMode = 'input' | 'apac' | 'historical' | 'report';
-export type NavigationView = 'trader-input' | 'daily-consolidation' | 'historical-data';
+export type NavigationView = 'dashboard' | 'daily-consolidation' | 'historical-data';
 export type InputMode = 'sector' | 'apac';
 
 // Export options
