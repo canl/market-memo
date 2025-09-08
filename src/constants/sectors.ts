@@ -2,28 +2,27 @@ import { Sector } from '../types';
 
 export const SECTORS: Sector[] = [
   'Australia IG',
-  'Japan IG',
+  'Korea IG',
   'China IG',
   'SEA IG',
   'India IG',
-  'Sovs'
+  'Japan',
+  'Asia Sovs',
+  'China HY',
+  'Non-China HY',
+  'CDS'
 ];
 
 export const SECTOR_LABELS: Record<Sector, string> = {
   'Australia IG': 'Australia IG',
-  'Japan IG': 'Japan IG',
+  'Korea IG': 'Korea IG',
   'China IG': 'China IG',
   'SEA IG': 'SEA IG',
   'India IG': 'India IG',
-  'Sovs': 'Sovs'
+  'Japan': 'Japan',
+  'Asia Sovs': 'Asia Sovereign',
+  'China HY': 'China HY',
+  'Non-China HY': 'Non-China HY',
+  'CDS': 'CDS'
 };
 
-// P&L field configurations for each sector
-export const SECTOR_PNL_FIELDS: Record<Sector, string[]> = {
-  'Australia IG': ['USD Bonds', 'AUD Bonds', 'CDS'],
-  'Japan IG': ['USD Bonds', 'JPY Bonds', 'CDS'],
-  'China IG': ['USD Bonds', 'CNY Bonds', 'CDS'],
-  'SEA IG': ['USD Bonds', 'MYR Bonds', 'CDS'],
-  'India IG': ['USD Bonds', 'INR Bonds', 'CDS'],
-  'Sovs': ['USD Bonds', 'CDS']
-};

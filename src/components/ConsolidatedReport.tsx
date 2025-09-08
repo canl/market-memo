@@ -25,7 +25,7 @@ import {
 
 import { DailyReport } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
-import { formatDate, formatCurrency } from '../utils/formatters';
+import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
 import { DataService } from '../services/dataService';
 
 
@@ -478,7 +478,7 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                               Market Moves and Flows
                             </Typography>
                             <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-                              {recap.marketMovesAndFlows}
+                              {formatMarketMovesAndFlows(recap.marketMovesAndFlows)}
                             </Typography>
                           </Box>
                         )}

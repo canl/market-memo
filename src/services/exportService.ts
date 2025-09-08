@@ -2,7 +2,7 @@ import jsPDF from 'jspdf';
 import { DailyReport } from '../types';
 import { PDFExportService } from './pdfExportService';
 import { SECTOR_LABELS } from '../constants/sectors';
-import { formatDate, formatCurrency } from '../utils/formatters';
+import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
 
 export class ExportService {
   // Export report as PDF using enhanced PDF service
@@ -70,7 +70,7 @@ export class ExportService {
         yPosition += 3;
         
         addText('Market Moves and Flows:', 12, true);
-        addText(recap.marketMovesAndFlows || 'No market moves reported.');
+        addText(formatMarketMovesAndFlows(recap.marketMovesAndFlows) || 'No market moves reported.');
         yPosition += 3;
         
         addText('Metrics:', 12, true);

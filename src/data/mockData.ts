@@ -13,7 +13,10 @@ export const sampleAPACComments: APACComments = {
 export const sampleSectorRecaps: SectorRecap[] = [
   {
     sector: 'Australia IG',
-    marketMovesAndFlows: 'Kept constructive sentiment post the headline about Japan tariff to 15% and Ishiba stepping down.',
+    marketMovesAndFlows: {
+      lower: -2,
+      higher: 3
+    },
     metrics: {
       pnl: 200000,
       risk: 45000,
@@ -25,7 +28,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   },
   {
     sector: 'Japan IG',
-    marketMovesAndFlows: 'Kept constructive sentiment post the headline about Japan tariff to 15% and Ishiba stepping down.',
+    marketMovesAndFlows: {
+      lower: 0,
+      higher: 1.5
+    },
     metrics: {
       pnl: 200000,
       risk: 38000,
@@ -37,7 +43,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   },
   {
     sector: 'China IG',
-    marketMovesAndFlows: 'NA',
+    marketMovesAndFlows: {
+      lower: undefined,
+      higher: undefined
+    },
     metrics: {
       pnl: -30000,
       risk: 52000,
@@ -49,7 +58,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   },
   {
     sector: 'SEA IG',
-    marketMovesAndFlows: 'NA',
+    marketMovesAndFlows: {
+      lower: -1.25,
+      higher: undefined
+    },
     metrics: {
       pnl: 170000,
       risk: 42000,
@@ -61,7 +73,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   },
   {
     sector: 'India IG',
-    marketMovesAndFlows: 'NA',
+    marketMovesAndFlows: {
+      lower: 0.5,
+      higher: 2.75
+    },
     metrics: {
       pnl: 200000,
       risk: 35000,
@@ -73,7 +88,10 @@ export const sampleSectorRecaps: SectorRecap[] = [
   },
   {
     sector: 'Sovs',
-    marketMovesAndFlows: 'NA',
+    marketMovesAndFlows: {
+      lower: undefined,
+      higher: 1
+    },
     metrics: {
       pnl: 180000,
       risk: 28000,
@@ -133,7 +151,10 @@ export const generateHistoricalData = (): DailyReport[] => {
         return {
           ...recap,
           date: dateString,
-          marketMovesAndFlows: `Day ${i + 1}: ${recap.sector} ${isPositiveDay ? 'outperformed' : 'underperformed'} with ${sectorVariation + 1}bps ${isPositiveDay ? 'tightening' : 'widening'}.`,
+          marketMovesAndFlows: {
+            lower: isPositiveDay ? -(sectorVariation + 1) : undefined,
+            higher: isPositiveDay ? undefined : (sectorVariation + 1) * 0.5
+          },
           marketCommentary: `${recap.sector} - ${isPositiveDay ? 'Constructive' : 'Cautious'} trading session. ${recap.marketCommentary.substring(0, 100)}... [Day ${i + 1} update]`,
           metrics: {
             pnl: Math.floor(sectorMultiplier * (50000 + sectorVariation * 30000) * volatilityFactor),

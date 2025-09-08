@@ -18,10 +18,10 @@ import {
   Save as SaveIcon,
   Close as CloseIcon
 } from '@mui/icons-material';
-import { Sector, SectorRecap } from '../types';
+import { Sector, SectorRecap, MarketMovesAndFlowsForm } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
 import { DataService } from '../services/dataService';
-import { formatCurrency } from '../utils/formatters';
+import { formatCurrency, parseNumericInput, formatNumericInput } from '../utils/formatters';
 
 interface SectorInputModalProps {
   open: boolean;
@@ -37,7 +37,10 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
   onSave
 }) => {
   const [formData, setFormData] = useState({
-    marketMovesAndFlows: '',
+    marketMovesAndFlows: {
+      lower: '',
+      higher: ''
+    } as MarketMovesAndFlowsForm,
     metrics: {
       pnl: '',
       risk: '',
@@ -55,7 +58,10 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
       const existingRecap = DataService.getDraftSectorRecap(sector, today);
       if (existingRecap) {
         setFormData({
-          marketMovesAndFlows: existingRecap.marketMovesAndFlows,
+          marketMovesAndFlows: {
+            lower: formatNumericInput(existingRecap.marketMovesAndFlows.lower),
+            higher: formatNumericInput(existingRecap.marketMovesAndFlows.higher)
+          },
           metrics: {
             pnl: (existingRecap.metrics.pnl / 1000).toString(), // Convert back from stored value
             risk: (existingRecap.metrics.risk / 1000).toString(), // Convert back from stored value
@@ -67,7 +73,10 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
       } else {
         // Reset form for new sector
         setFormData({
-          marketMovesAndFlows: '',
+          marketMovesAndFlows: {
+            lower: '',
+            higher: ''
+          },
           metrics: { pnl: '', risk: '', volumes: '' },
           marketCommentary: '',
           submittedBy: 'Current User'
@@ -92,7 +101,10 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
       const recap: SectorRecap = {
         sector,
         date: new Date().toISOString().split('T')[0], // Today's date in YYYY-MM-DD format
-        marketMovesAndFlows: formData.marketMovesAndFlows,
+        marketMovesAndFlows: {
+          lower: parseNumericInput(formData.marketMovesAndFlows.lower),
+          higher: parseNumericInput(formData.marketMovesAndFlows.higher)
+        },
         metrics: {
           pnl: parseMetricValue(formData.metrics.pnl) * 1000, // Convert to actual value (k)
           risk: parseMetricValue(formData.metrics.risk) * 1000, // Convert to actual value (k)
@@ -117,7 +129,8 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
   };
 
   const isFormValid = () => {
-    return formData.marketMovesAndFlows.trim() !== '' ||
+    return formData.marketMovesAndFlows.lower.trim() !== '' ||
+           formData.marketMovesAndFlows.higher.trim() !== '' ||
            formData.marketCommentary.trim() !== '' ||
            formData.metrics.pnl !== '' ||
            formData.metrics.risk !== '' ||
@@ -184,16 +197,55 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
             <Typography variant="h6" gutterBottom>
               Market Moves & Flows
             </Typography>
-            <TextField
-              fullWidth
-              multiline
-              rows={4}
-              value={formData.marketMovesAndFlows}
-              onChange={(e) => setFormData(prev => ({ ...prev, marketMovesAndFlows: e.target.value }))}
-              placeholder="Describe key market movements and trading flows..."
-              variant="outlined"
-              autoFocus
-            />
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Lower Bound"
+                  type="number"
+                  value={formData.marketMovesAndFlows.lower}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    marketMovesAndFlows: {
+                      ...prev.marketMovesAndFlows,
+                      lower: e.target.value
+                    }
+                  }))}
+                  placeholder="0"
+                  variant="outlined"
+                  autoFocus
+                  inputProps={{
+                    step: "0.01",
+                    min: undefined,
+                    max: undefined
+                  }}
+                  helperText="Optional - accepts decimals (e.g., -2.5)"
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  label="Higher Bound"
+                  type="number"
+                  value={formData.marketMovesAndFlows.higher}
+                  onChange={(e) => setFormData(prev => ({
+                    ...prev,
+                    marketMovesAndFlows: {
+                      ...prev.marketMovesAndFlows,
+                      higher: e.target.value
+                    }
+                  }))}
+                  placeholder="0"
+                  variant="outlined"
+                  inputProps={{
+                    step: "0.01",
+                    min: undefined,
+                    max: undefined
+                  }}
+                  helperText="Optional - accepts decimals (e.g., 3.25)"
+                />
+              </Grid>
+            </Grid>
           </Grid>
 
           {/* Financial Metrics */}

@@ -19,7 +19,7 @@ import 'ag-grid-community/styles/ag-theme-alpine.css';
 import { DailyReport, HistoricalFilter, Sector } from '../types';
 import { SECTORS, SECTOR_LABELS } from '../constants/sectors';
 import { DataService } from '../services/dataService';
-import { formatDate, formatCurrency } from '../utils/formatters';
+import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
 
 interface HistoricalRecapViewerProps {
   onReportSelect?: (report: DailyReport) => void;
@@ -101,7 +101,7 @@ export const HistoricalRecapViewer: React.FC<HistoricalRecapViewerProps> = ({ on
           gridData.push({
             date: report.date,
             sector: SECTOR_LABELS[recap.sector],
-            marketMovesAndFlows: recap.marketMovesAndFlows,
+            marketMovesAndFlows: formatMarketMovesAndFlows(recap.marketMovesAndFlows),
             dailyPnL: `P&L: ${formatCurrency(recap.metrics.pnl)}, Risk: ${formatCurrency(recap.metrics.risk)}, Volumes: ${formatCurrency(recap.metrics.volumes)}`,
             totalPnL,
             marketCommentary: recap.marketCommentary,

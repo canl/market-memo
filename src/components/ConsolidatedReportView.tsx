@@ -13,7 +13,7 @@ import {
 
 import { DailyReport } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
-import { formatDate, formatCurrency } from '../utils/formatters';
+import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
 
 interface ConsolidatedReportViewProps {
   report: DailyReport;
@@ -140,7 +140,7 @@ export const ConsolidatedReportView = forwardRef<HTMLDivElement, ConsolidatedRep
                         Market Moves and Flows
                       </Typography>
                       <Typography variant="body1" paragraph>
-                        {recap.marketMovesAndFlows || 'No market moves reported.'}
+                        {formatMarketMovesAndFlows(recap.marketMovesAndFlows) || 'No market moves reported.'}
                       </Typography>
                     </Grid>
 

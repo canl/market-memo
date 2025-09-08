@@ -19,7 +19,7 @@ import { ColDef, GridReadyEvent, ModuleRegistry, AllCommunityModule, themeQuartz
 import { DailyReport, HistoricalFilter, Sector } from '../types';
 import { SECTORS, SECTOR_LABELS } from '../constants/sectors';
 import { DataService } from '../services/dataService';
-import { formatDate, formatCurrency } from '../utils/formatters';
+import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
 
 // Register AG Grid modules
 ModuleRegistry.registerModules([AllCommunityModule]);
@@ -155,7 +155,7 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
             id: `${report.date}-${recap.sector}`,
             date: report.date,
             sector: SECTOR_LABELS[recap.sector],
-            marketMovesAndFlows: recap.marketMovesAndFlows,
+            marketMovesAndFlows: formatMarketMovesAndFlows(recap.marketMovesAndFlows),
             marketCommentary: recap.marketCommentary,
             pnl: recap.metrics.pnl,
             risk: recap.metrics.risk,

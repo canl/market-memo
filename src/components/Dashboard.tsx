@@ -30,6 +30,7 @@ import { RichTextDisplay } from './RichTextDisplay';
 import { Sector, SectorRecap } from '../types';
 import { SECTORS, SECTOR_LABELS } from '../constants/sectors';
 import { DataService } from '../services/dataService';
+import { formatMarketMovesAndFlows } from '../utils/formatters';
 
 
 // Format functions to match Trader Input page exactly
@@ -373,6 +374,16 @@ export const Dashboard: React.FC<DashboardProps> = ({
                     </Box>
                   </Box>
 
+                  {/* Market Moves & Flows Section */}
+                  <Box mb={2}>
+                    <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
+                      Market Moves & Flows:
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {formatMarketMovesAndFlows(card.recap?.marketMovesAndFlows || { lower: undefined, higher: undefined })}
+                    </Typography>
+                  </Box>
+
                   {/* Metrics Section */}
                   <Box mb={2}>
                     <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
@@ -394,18 +405,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   {/* Expandable Content */}
                   <Collapse in={isExpanded}>
                     <Divider sx={{ mb: 2 }} />
-
-                    {/* Market Moves & Flows */}
-                    {card.recap?.marketMovesAndFlows && (
-                      <Box mb={2}>
-                        <Typography variant="subtitle2" fontWeight="bold" color="text.primary" gutterBottom>
-                          Market Moves & Flows:
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary">
-                          {card.recap.marketMovesAndFlows}
-                        </Typography>
-                      </Box>
-                    )}
 
                     {/* Market Commentary */}
                     {card.recap?.marketCommentary && (

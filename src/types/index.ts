@@ -1,5 +1,14 @@
 // Sector types
-export type Sector = 'Australia IG' | 'Japan IG' | 'China IG' | 'SEA IG' | 'India IG' | 'Sovs';
+export type Sector = 'Australia IG' |
+  'Korea IG' |
+  'China IG' |
+  'SEA IG' |
+  'India IG' |
+  'Japan' |
+  'Asia Sovs' |
+  'China HY' |
+  'Non-China HY' |
+  'CDS'
 
 // Simplified metrics structure for each sector
 export interface SectorMetrics {
@@ -15,10 +24,22 @@ export interface SectorMetricsForm {
   volumes: string;
 }
 
+// Market Moves & Flows structure with lower and higher bounds
+export interface MarketMovesAndFlows {
+  lower?: number;
+  higher?: number;
+}
+
+// Form input for Market Moves & Flows (string values for better UX)
+export interface MarketMovesAndFlowsForm {
+  lower: string;
+  higher: string;
+}
+
 // Sector-specific recap data with simplified structure
 export interface SectorRecap {
   sector: Sector;
-  marketMovesAndFlows: string;
+  marketMovesAndFlows: MarketMovesAndFlows;
   metrics: SectorMetrics;
   marketCommentary: string;
   date: string;
