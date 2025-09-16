@@ -1,5 +1,14 @@
-import { DailyReport, SectorRecap, APACComments, Sector } from '../types';
+import { 
+  DailyReport, 
+  SectorRecap, 
+  APACComments, 
+  Sector,
+  IGOnlyMetrics,
+  IGAndHYMetrics,
+  SectorMetrics
+} from '../types';
 import { mockHistoricalData, sampleAPACComments, sampleSectorRecaps } from '../data/mockData';
+import { getSectorModelType } from '../constants/sectors';
 
 const STORAGE_KEYS = {
   CURRENT_REPORT: 'market-memo-current-report',
@@ -57,13 +66,16 @@ class InMemoryStorage {
     if (apacComments) {
       finalAPACComments = apacComments;
     } else if (sectorRecaps.length > 0) {
-      // Aggregate from sector recaps
+      // Aggregate from sector recaps using new data model
       const aggregated = sectorRecaps.reduce(
-        (totals, recap) => ({
-          pnl: totals.pnl + (recap.metrics?.pnl || 0),
-          risk: totals.risk + (recap.metrics?.risk || 0),
-          volumes: totals.volumes + (recap.metrics?.volumes || 0)
-        }),
+        (totals, recap) => {
+          const legacyMetrics = DataService.getLegacyMetrics(recap);
+          return {
+            pnl: totals.pnl + legacyMetrics.pnl,
+            risk: totals.risk + legacyMetrics.risk,
+            volumes: totals.volumes + legacyMetrics.volumes
+          };
+        },
         { pnl: 0, risk: 0, volumes: 0 }
       );
 
@@ -105,6 +117,33 @@ class InMemoryStorage {
 export { InMemoryStorage };
 
 export class DataService {
+  // Helper function to aggregate metrics from new sector model
+  static aggregateSectorMetrics(metrics: SectorMetrics): { pnl: number; risk: number; volumes: number } {
+    if ('ig' in metrics && !('hy' in metrics)) {
+      // IG Only model
+      return {
+        pnl: metrics.ig.pnl,
+        risk: metrics.ig.risk,
+        volumes: metrics.ig.volumes
+      };
+    } else if ('hy' in metrics) {
+      // IG & HY model - sum all credit types
+      return {
+        pnl: metrics.ig.pnl + metrics.hy.pnl + metrics.lct.pnl + metrics.cds.pnl,
+        risk: metrics.ig.risk + metrics.hy.risk + metrics.lct.risk + metrics.cds.risk,
+        volumes: metrics.ig.volumes + metrics.hy.volumes + metrics.lct.volumes + metrics.cds.volumes
+      };
+    } else {
+      // Fallback for legacy data
+      return { pnl: 0, risk: 0, volumes: 0 };
+    }
+  }
+
+  // Helper function to get legacy metrics for backward compatibility
+  static getLegacyMetrics(recap: SectorRecap): { pnl: number; risk: number; volumes: number } {
+    return this.aggregateSectorMetrics(recap.metrics);
+  }
+
   // Clear old data structure from localStorage
   static clearOldData(): void {
     try {

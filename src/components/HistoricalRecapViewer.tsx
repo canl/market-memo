@@ -96,13 +96,13 @@ export const HistoricalRecapViewer: React.FC<HistoricalRecapViewerProps> = ({ on
       // Add sector rows
       report.sectorRecaps.forEach(recap => {
         if (filter.sector === 'All' || filter.sector === recap.sector) {
-          const totalPnL = recap.metrics.pnl;
+          const totalPnL = DataService.getLegacyMetrics(recap).pnl;
           
           gridData.push({
             date: report.date,
             sector: SECTOR_LABELS[recap.sector],
             marketMovesAndFlows: formatMarketMovesAndFlows(recap.marketMovesAndFlows),
-            dailyPnL: `P&L: ${formatCurrency(recap.metrics.pnl)}, Risk: ${formatCurrency(recap.metrics.risk)}, Volumes: ${formatCurrency(recap.metrics.volumes)}`,
+            dailyPnL: `P&L: ${formatCurrency(DataService.getLegacyMetrics(recap).pnl)}, Risk: ${formatCurrency(DataService.getLegacyMetrics(recap).risk)}, Volumes: ${formatCurrency(DataService.getLegacyMetrics(recap).volumes)}`,
             totalPnL,
             marketCommentary: recap.marketCommentary,
             submittedBy: recap.submittedBy || 'Unknown'

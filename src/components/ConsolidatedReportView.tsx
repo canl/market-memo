@@ -13,6 +13,7 @@ import {
 
 import { DailyReport } from '../types';
 import { SECTOR_LABELS } from '../constants/sectors';
+import { DataService } from '../services/dataService';
 import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
 
 interface ConsolidatedReportViewProps {
@@ -149,7 +150,7 @@ export const ConsolidatedReportView = forwardRef<HTMLDivElement, ConsolidatedRep
                         Daily P&L
                       </Typography>
                       <Typography variant="body1" paragraph>
-                        P&L: {formatCurrency(recap.metrics.pnl)}, Risk: {formatCurrency(recap.metrics.risk)}, Volumes: {formatCurrency(recap.metrics.volumes)}
+                        P&L: {formatCurrency(DataService.getLegacyMetrics(recap).pnl)}, Risk: {formatCurrency(DataService.getLegacyMetrics(recap).risk)}, Volumes: {formatCurrency(DataService.getLegacyMetrics(recap).volumes)}
                       </Typography>
                     </Grid>
 

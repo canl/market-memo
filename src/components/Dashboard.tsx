@@ -15,7 +15,9 @@ import {
   alpha,
   TextField,
   Collapse,
-  Divider
+  Divider,
+  Button,
+  Stack
 } from '@mui/material';
 import {
   TrendingUp as TrendingUpIcon,
@@ -24,31 +26,53 @@ import {
   History as HistoryIcon,
   CheckCircle as CheckIcon,
   ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon
+  ExpandLess as ExpandLessIcon,
+  Print as PrintIcon,
+  PictureAsPdf as PdfIcon,
+  Email as EmailIcon
 } from '@mui/icons-material';
 import { RichTextDisplay } from './RichTextDisplay';
+import { MetricsBreakdown } from './MetricsBreakdown';
 import { Sector, SectorRecap } from '../types';
-import { SECTORS, SECTOR_LABELS } from '../constants/sectors';
+import { SECTORS, SECTOR_LABELS, getSectorModelType, getSectorCategory } from '../constants/sectors';
 import { DataService } from '../services/dataService';
 import { formatMarketMovesAndFlows } from '../utils/formatters';
 
 
-// Format functions to match Trader Input page exactly
+/**
+ * Format functions for dashboard display
+ * These functions convert stored values (in thousands) to display format
+ */
+
+/**
+ * Formats P&L values with sign and 'k' suffix
+ * @param value - P&L value in thousands
+ * @returns Formatted string (e.g., "+1,200k", "-500k", "0")
+ */
 const formatPnL = (value: number): string => {
   if (value === 0) return '0';
   const sign = value >= 0 ? '+' : '';
   return `${sign}${(value / 1000).toFixed(0)}k`;
 };
 
+/**
+ * Formats Risk values with 'k' suffix
+ * @param value - Risk value in thousands
+ * @returns Formatted string (e.g., "1,200k", "500k", "0")
+ */
 const formatRisk = (value: number): string => {
   if (value === 0) return '0';
   return `${(value / 1000).toFixed(0)}k`;
 };
 
+/**
+ * Formats Volume values with 'M' suffix (millions)
+ * @param value - Volume value in thousands
+ * @returns Formatted string (e.g., "1,200M", "500M", "0")
+ */
 const formatVolume = (value: number): string => {
   if (value === 0) return '0';
   // Volume is stored as thousands but displayed as millions
-  // So if user enters 268M, it's stored as 268000, and we show (268000/1000)M = 268M
   return `${(value / 1000).toFixed(0)}M`;
 };
 
@@ -60,6 +84,9 @@ interface DashboardProps {
   selectedDate: string;
   onDateChange: (date: string) => void;
   refreshTrigger?: number; // Add refresh trigger
+  onExportPDF?: () => void;
+  onSendEmail?: () => void;
+  onPrint?: () => void;
 }
 
 interface SectorCardData {
@@ -72,6 +99,19 @@ interface SectorCardData {
   volumes: number;
 }
 
+/**
+ * Dashboard Component
+ * 
+ * Main dashboard displaying sector overview, metrics summary, and sector cards.
+ * Features:
+ * - Date picker with print/export/email actions
+ * - APAC market summary section
+ * - Sector cards grouped by category (Country, Asia Sovereign / CDS)
+ * - Expandable sector cards with detailed metrics breakdown
+ * - Real-time data loading and persistence
+ * 
+ * @param props - Dashboard component props
+ */
 export const Dashboard: React.FC<DashboardProps> = ({
   onSectorEdit,
   onViewReports,
@@ -79,7 +119,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
   onAPACEdit,
   selectedDate,
   onDateChange,
-  refreshTrigger
+  refreshTrigger,
+  onExportPDF,
+  onSendEmail,
+  onPrint
 }) => {
   const theme = useTheme();
 
@@ -117,14 +160,17 @@ export const Dashboard: React.FC<DashboardProps> = ({
       const recap = report?.sectorRecaps.find(r => r.sector === sector);
       const status = recap ? 'completed' : 'pending';
 
+      // Use new data model helper to get aggregated metrics
+      const legacyMetrics = recap ? DataService.getLegacyMetrics(recap) : { pnl: 0, risk: 0, volumes: 0 };
+
       return {
         sector,
         label: SECTOR_LABELS[sector],
         recap,
         status,
-        pnl: recap?.metrics.pnl || 0,
-        risk: recap?.metrics.risk || 0,
-        volumes: recap?.metrics.volumes || 0
+        pnl: legacyMetrics.pnl,
+        risk: legacyMetrics.risk,
+        volumes: legacyMetrics.volumes
       };
     });
 
@@ -154,15 +200,15 @@ export const Dashboard: React.FC<DashboardProps> = ({
     }
   };
 
-  // Sector grouping for better organization
+  // Sector grouping based on new model categories
   const sectorGroups = [
     {
-      title: 'Investment Grade',
-      sectors: ['Australia IG', 'Korea IG', 'China IG', 'SEA IG', 'India IG'] as Sector[]
+      title: 'Country',
+      sectors: SECTORS.filter(sector => getSectorCategory(sector) === 'Country')
     },
     {
-      title: 'High Yield & Sovereigns',
-      sectors: ['Japan', 'Asia Sovs', 'China HY', 'Non-China HY', 'CDS'] as Sector[]
+      title: 'Asia Sovereign / CDS',
+      sectors: SECTORS.filter(sector => getSectorCategory(sector) === 'Asia Sovereign / CDS')
     }
   ];
 
@@ -187,13 +233,41 @@ export const Dashboard: React.FC<DashboardProps> = ({
               }}
             />
           </Grid>
-          <Grid item xs={12} md={8}>
+          <Grid item xs={12} md={4}>
             <Typography variant="body2" color="text.secondary">
               {selectedDate === new Date().toISOString().split('T')[0]
                 ? 'Viewing today\'s live data. Changes will be reflected immediately.'
                 : 'Viewing historical data for the selected date.'
               }
             </Typography>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Stack direction="row" spacing={1} justifyContent="flex-end">
+              <Button
+                variant="outlined"
+                onClick={onPrint}
+                size="small"
+                startIcon={<PrintIcon />}
+              >
+                Print
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={onExportPDF}
+                size="small"
+                startIcon={<PdfIcon />}
+              >
+                Export PDF
+              </Button>
+              <Button
+                variant="contained"
+                onClick={onSendEmail}
+                size="small"
+                startIcon={<EmailIcon />}
+              >
+                Send to Desk
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Paper>
@@ -341,18 +415,20 @@ export const Dashboard: React.FC<DashboardProps> = ({
           <Typography variant="h6" fontWeight="bold" color="text.primary" sx={{ mb: 2, fontSize: '1.1rem' }}>
             {group.title}
           </Typography>
-          <Grid container spacing={2.5} sx={{ mb: 3 }}>
+          <Grid container spacing={2.5} sx={{ mb: 3, alignItems: 'flex-start' }}>
             {sectorData
               .filter(card => group.sectors.includes(card.sector))
-              .map((card) => {
+              .map((card, index) => {
                 const isExpanded = expandedCards.has(card.sector);
                 return (
-                  <Grid item xs={12} sm={6} md={4} lg={3} xl={2.4} key={card.sector}>
+                  <Grid item xs={12} sm={6} md={4} lg={3} xl={2.4} key={`${card.sector}-${groupIndex}-${index}`}>
               <Card
+                key={`card-${card.sector}-${groupIndex}`}
                 sx={{
                   cursor: 'pointer',
                   transition: 'all 0.2s ease-in-out',
-                  height: '100%',
+                  height: 'auto',
+                  minHeight: '200px',
                   display: 'flex',
                   flexDirection: 'column',
                   '&:hover': {
@@ -366,9 +442,23 @@ export const Dashboard: React.FC<DashboardProps> = ({
                 <CardContent sx={{ pb: 1.5, flex: 1, display: 'flex', flexDirection: 'column' }}>
                   {/* Header */}
                   <Box display="flex" alignItems="center" justifyContent="space-between" mb={1.5}>
-                    <Typography variant="subtitle1" fontWeight="bold" sx={{ fontSize: '1rem' }}>
-                      {card.label}
-                    </Typography>
+                    <Box>
+                      <Typography variant="subtitle1" fontWeight="bold" sx={{ fontSize: '1rem' }}>
+                        {card.label}
+                      </Typography>
+                      <Chip
+                        label={getSectorModelType(card.sector)}
+                        size="small"
+                        variant="outlined"
+                        sx={{
+                          fontSize: '0.7rem',
+                          height: 20,
+                          mt: 0.5,
+                          color: getSectorModelType(card.sector) === 'IG Only' ? 'success.main' : 'warning.main',
+                          borderColor: getSectorModelType(card.sector) === 'IG Only' ? 'success.main' : 'warning.main'
+                        }}
+                      />
+                    </Box>
                     <Box display="flex" alignItems="center" gap={0.5}>
                       <Chip
                         label={card.status === 'completed' ? 'Complete' : 'Pending'}
@@ -405,7 +495,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
                       Market Moves & Flows
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ fontSize: '0.9rem', mt: 0.5 }}>
-                      {formatMarketMovesAndFlows(card.recap?.marketMovesAndFlows || { lower: undefined, higher: undefined })}
+                      {formatMarketMovesAndFlows(card.recap?.marketMovesAndFlows || { ig: { lower: undefined, higher: undefined } })}
                     </Typography>
                   </Box>
 
@@ -431,6 +521,14 @@ export const Dashboard: React.FC<DashboardProps> = ({
                   <Collapse in={isExpanded}>
                     <Divider sx={{ mb: 2 }} />
 
+                    {/* Metrics Breakdown */}
+                    {card.recap?.metrics && (
+                      <MetricsBreakdown 
+                        metrics={card.recap.metrics} 
+                        modelType={getSectorModelType(card.sector)} 
+                      />
+                    )}
+
                     {/* Market Commentary */}
                     {card.recap?.marketCommentary && (
                       <Box mb={2}>
@@ -449,7 +547,6 @@ export const Dashboard: React.FC<DashboardProps> = ({
                         />
                       </Box>
                     )}
-
 
                   </Collapse>
 

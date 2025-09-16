@@ -11,13 +11,19 @@ interface DashboardViewProps {
   onNavigateToHistory: () => void;
   onSectorSave: (recap: SectorRecap) => void;
   onAPACSave: (comments: APACComments) => void;
+  onExportPDF?: () => void;
+  onSendEmail?: () => void;
+  onPrint?: () => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   onNavigateToReports,
   onNavigateToHistory,
   onSectorSave,
-  onAPACSave
+  onAPACSave,
+  onExportPDF,
+  onSendEmail,
+  onPrint
 }) => {
   const [selectedSector, setSelectedSector] = useState<Sector | null>(null);
   const [sectorModalOpen, setSectorModalOpen] = useState(false);
@@ -79,11 +85,15 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         selectedDate={selectedDate}
         onDateChange={setSelectedDate}
         refreshTrigger={refreshTrigger}
+        onExportPDF={onExportPDF}
+        onSendEmail={onSendEmail}
+        onPrint={onPrint}
       />
 
       <SectorInputModal
         open={sectorModalOpen}
         sector={selectedSector}
+        selectedDate={selectedDate}
         onClose={handleSectorModalClose}
         onSave={handleSectorSave}
       />

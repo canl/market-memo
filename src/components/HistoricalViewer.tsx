@@ -59,7 +59,7 @@ const lightTheme = themeQuartz
     wrapperBorderRadius: 8
   });
 
-interface EnhancedHistoricalViewerProps {
+interface HistoricalViewerProps {
   onReportSelect?: (report: DailyReport) => void;
 }
 
@@ -76,7 +76,7 @@ interface GridRowData {
   reportData?: DailyReport;
 }
 
-export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> = ({ onReportSelect }) => {
+export const HistoricalViewer: React.FC<HistoricalViewerProps> = ({ onReportSelect }) => {
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
 
@@ -157,9 +157,9 @@ export const EnhancedHistoricalViewer: React.FC<EnhancedHistoricalViewerProps> =
             sector: SECTOR_LABELS[recap.sector],
             marketMovesAndFlows: formatMarketMovesAndFlows(recap.marketMovesAndFlows),
             marketCommentary: recap.marketCommentary,
-            pnl: recap.metrics.pnl,
-            risk: recap.metrics.risk,
-            volumes: recap.metrics.volumes,
+            pnl: DataService.getLegacyMetrics(recap).pnl,
+            risk: DataService.getLegacyMetrics(recap).risk,
+            volumes: DataService.getLegacyMetrics(recap).volumes,
             submittedBy: recap.submittedBy || 'Unknown',
             reportData: report
           });

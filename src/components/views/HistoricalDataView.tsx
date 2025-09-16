@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { EnhancedHistoricalViewer } from '../HistoricalViewer';
+import { HistoricalViewer } from '../HistoricalViewer';
 import { DailyReport } from '../../types';
 
 export const HistoricalDataView: React.FC = () => {
@@ -18,7 +18,7 @@ export const HistoricalDataView: React.FC = () => {
         Browse historical market recaps and data
       </Typography>
 
-      <EnhancedHistoricalViewer onReportSelect={handleReportSelect} />
+      <HistoricalViewer onReportSelect={handleReportSelect} />
     </Box>
   );
 };

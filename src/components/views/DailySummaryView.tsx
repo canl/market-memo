@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { EnhancedConsolidatedReport } from '../ConsolidatedReport';
+import { ConsolidatedReport } from '../ConsolidatedReport';
 
 interface DailySummaryViewProps {
   onExportPDF?: () => void;
@@ -15,7 +15,7 @@ export const DailySummaryView: React.FC<DailySummaryViewProps> = ({
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
 
   return (
-    <EnhancedConsolidatedReport
+    <ConsolidatedReport
       onExportPDF={onExportPDF}
       onSendEmail={onSendEmail}
       onPrint={onPrint}

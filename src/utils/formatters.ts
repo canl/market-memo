@@ -39,14 +39,7 @@ export const formatDateForInput = (date: Date): string => {
  * @returns Formatted string in "lower/higher" format
  */
 export const formatMarketMovesAndFlows = (marketMovesAndFlows: MarketMovesAndFlows): string => {
-  const { lower, higher } = marketMovesAndFlows;
-
-  // If both values are undefined/null, return 0/0 (consistent with metrics showing 0)
-  if (lower === undefined && higher === undefined) {
-    return '0/0';
-  }
-
-  // Format individual values
+  // Helper function to format individual values
   const formatValue = (value: number | undefined): string => {
     if (value === undefined || value === null) {
       return '–';
@@ -54,6 +47,39 @@ export const formatMarketMovesAndFlows = (marketMovesAndFlows: MarketMovesAndFlo
     // Handle decimals properly
     return value % 1 === 0 ? value.toString() : value.toString();
   };
+
+  // Handle IG Only case
+  if ('ig' in marketMovesAndFlows && !('hy' in marketMovesAndFlows)) {
+    const { lower, higher } = marketMovesAndFlows.ig;
+    
+    // If both values are undefined/null, return 0/0
+    if (lower === undefined && higher === undefined) {
+      return '0/0';
+    }
+
+    return `${formatValue(lower)}/${formatValue(higher)}`;
+  }
+
+  // Handle IG & HY case - for now, just show IG values
+  if ('hy' in marketMovesAndFlows) {
+    const { lower, higher } = marketMovesAndFlows.ig;
+    
+    // If both values are undefined/null, return 0/0
+    if (lower === undefined && higher === undefined) {
+      return '0/0';
+    }
+
+    return `${formatValue(lower)}/${formatValue(higher)}`;
+  }
+
+  // Fallback for legacy data structure
+  const marketMoves = marketMovesAndFlows as any;
+  const { lower, higher } = marketMoves;
+
+  // If both values are undefined/null, return 0/0
+  if (lower === undefined && higher === undefined) {
+    return '0/0';
+  }
 
   return `${formatValue(lower)}/${formatValue(higher)}`;
 };

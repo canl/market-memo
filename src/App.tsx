@@ -301,6 +301,9 @@ function AppContent() {
                   onNavigateToHistory={() => navigate('/historical-data')}
                   onSectorSave={handleSectorRecapSave}
                   onAPACSave={handleAPACCommentsSave}
+                  onExportPDF={handleExportPDF}
+                  onSendEmail={handleSendEmail}
+                  onPrint={handlePrint}
                 />
               }
             />

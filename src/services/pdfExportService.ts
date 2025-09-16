@@ -2,6 +2,7 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import { DailyReport } from '../types';
 import { formatDate } from '../utils/formatters';
+import { DataService } from './dataService';
 
 export class PDFExportService {
   /**
@@ -120,7 +121,8 @@ export class PDFExportService {
       yPosition += 8;
       
       report.sectorRecaps.forEach((recap, index) => {
-        pdf.text(`• ${recap.sector}: ${(recap.metrics.pnl / 1000).toFixed(0)}k P&L`, 25, yPosition);
+        const legacyMetrics = DataService.getLegacyMetrics(recap);
+        pdf.text(`• ${recap.sector}: ${(legacyMetrics.pnl / 1000).toFixed(0)}k P&L`, 25, yPosition);
         yPosition += 6;
       });
 

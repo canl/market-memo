@@ -3,6 +3,7 @@ import { DailyReport } from '../types';
 import { PDFExportService } from './pdfExportService';
 import { SECTOR_LABELS } from '../constants/sectors';
 import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
+import { DataService } from './dataService';
 
 export class ExportService {
   // Export report as PDF using enhanced PDF service
@@ -74,7 +75,8 @@ export class ExportService {
         yPosition += 3;
         
         addText('Metrics:', 12, true);
-        addText(`P&L: ${formatCurrency(recap.metrics.pnl)}, Risk: ${formatCurrency(recap.metrics.risk)}, Volumes: ${formatCurrency(recap.metrics.volumes)}`);
+        const legacyMetrics = DataService.getLegacyMetrics(recap);
+        addText(`P&L: ${formatCurrency(legacyMetrics.pnl)}, Risk: ${formatCurrency(legacyMetrics.risk)}, Volumes: ${formatCurrency(legacyMetrics.volumes)}`);
         yPosition += 3;
         
         addText('Market Commentary:', 12, true);

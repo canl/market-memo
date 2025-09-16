@@ -23,14 +23,20 @@ import {
   Email as EmailIcon
 } from '@mui/icons-material';
 
-import { DailyReport } from '../types';
-import { SECTOR_LABELS } from '../constants/sectors';
+import { DailyReport, IGOnlyMetrics, IGAndHYMetrics } from '../types';
+import { 
+  SECTOR_LABELS, 
+  getSectorModelType, 
+  getSectorCategory,
+  isIGOnlySector,
+  isIGAndHYSector 
+} from '../constants/sectors';
 import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
 import { DataService } from '../services/dataService';
 
 
 
-interface EnhancedConsolidatedReportProps {
+interface ConsolidatedReportProps {
   report?: DailyReport;
   onExportPDF?: () => void;
   onSendEmail?: () => void;
@@ -39,7 +45,7 @@ interface EnhancedConsolidatedReportProps {
   onDateChange?: (date: string) => void;
 }
 
-export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedConsolidatedReportProps>(
+export const ConsolidatedReport = forwardRef<HTMLDivElement, ConsolidatedReportProps>(
   ({ onExportPDF, onSendEmail, onPrint, selectedDate, onDateChange }, ref) => {
     const [currentReport, setCurrentReport] = useState<DailyReport | null>(null);
     const [availableDates, setAvailableDates] = useState<string[]>([]);
@@ -436,50 +442,191 @@ export const EnhancedConsolidatedReport = forwardRef<HTMLDivElement, EnhancedCon
                             <Typography
                               variant="h6"
                               fontWeight="bold"
-                              color={(recap.metrics?.pnl || 0) >= 0 ? 'success.main' : 'error.main'}
+                              color={DataService.getLegacyMetrics(recap).pnl >= 0 ? 'success.main' : 'error.main'}
                             >
-                              {formatCurrency(recap.metrics?.pnl || 0)}
+                              {formatCurrency(DataService.getLegacyMetrics(recap).pnl)}
                             </Typography>
                           </Box>
                         </Box>
 
-                        {/* Metrics */}
+                        {/* Metrics - Dynamic based on sector model */}
+                        {getSectorModelType(recap.sector) === 'IG Only' ? (
+                          /* IG Only Metrics Display */
                         <Grid container spacing={2} sx={{ mb: 2 }}>
                           <Grid xs={12} sm={4}>
                             <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
-                              <Typography variant="caption" color="text.secondary">P&L</Typography>
-                              <Typography variant="body2" fontWeight="bold" color={(recap.metrics?.pnl || 0) >= 0 ? 'success.main' : 'error.main'}>
-                                {formatCurrency(recap.metrics?.pnl || 0)}
+                                <Typography variant="caption" color="text.secondary">IG P&L</Typography>
+                                <Typography variant="body2" fontWeight="bold" color={((recap.metrics as IGOnlyMetrics)?.ig.pnl || 0) >= 0 ? 'success.main' : 'error.main'}>
+                                  {formatCurrency((recap.metrics as IGOnlyMetrics)?.ig.pnl || 0)}
                               </Typography>
                             </Box>
                           </Grid>
                           <Grid xs={12} sm={4}>
                             <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
-                              <Typography variant="caption" color="text.secondary">Risk</Typography>
+                                <Typography variant="caption" color="text.secondary">IG Risk</Typography>
                               <Typography variant="body2" fontWeight="bold">
-                                {formatCurrency(recap.metrics?.risk || 0)}
+                                  {formatCurrency((recap.metrics as IGOnlyMetrics)?.ig.risk || 0)}
                               </Typography>
                             </Box>
                           </Grid>
                           <Grid xs={12} sm={4}>
                             <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'action.hover', borderRadius: 1 }}>
-                              <Typography variant="caption" color="text.secondary">Volumes</Typography>
+                                <Typography variant="caption" color="text.secondary">IG Volumes</Typography>
                               <Typography variant="body2" fontWeight="bold">
-                                {formatCurrency(recap.metrics?.volumes || 0)}
+                                  {formatCurrency((recap.metrics as IGOnlyMetrics)?.ig.volumes || 0)}
                               </Typography>
                             </Box>
                           </Grid>
                         </Grid>
+                        ) : (
+                          /* IG & HY Metrics Display */
+                          <Box>
+                            {/* IG Metrics */}
+                            <Typography variant="subtitle2" fontWeight="bold" color="primary.main" sx={{ mb: 1 }}>
+                              Investment Grade
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 2 }}>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'primary.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">IG P&L</Typography>
+                                  <Typography variant="body2" fontWeight="bold" color={((recap.metrics as IGAndHYMetrics)?.ig.pnl || 0) >= 0 ? 'success.main' : 'error.main'}>
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.ig.pnl || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'primary.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">IG Risk</Typography>
+                                  <Typography variant="body2" fontWeight="bold">
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.ig.risk || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'primary.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">IG Volumes</Typography>
+                                  <Typography variant="body2" fontWeight="bold">
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.ig.volumes || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                            </Grid>
 
-                        {/* Market Moves */}
+                            {/* HY Metrics */}
+                            <Typography variant="subtitle2" fontWeight="bold" color="secondary.main" sx={{ mb: 1 }}>
+                              High Yield
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 2 }}>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'secondary.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">HY P&L</Typography>
+                                  <Typography variant="body2" fontWeight="bold" color={((recap.metrics as IGAndHYMetrics)?.hy.pnl || 0) >= 0 ? 'success.main' : 'error.main'}>
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.hy.pnl || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'secondary.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">HY Risk</Typography>
+                                  <Typography variant="body2" fontWeight="bold">
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.hy.risk || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'secondary.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">HY Volumes</Typography>
+                                  <Typography variant="body2" fontWeight="bold">
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.hy.volumes || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                            </Grid>
+
+                            {/* LCT Metrics */}
+                            <Typography variant="subtitle2" fontWeight="bold" color="warning.main" sx={{ mb: 1 }}>
+                              LCT (Leveraged Credit Trading)
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 2 }}>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'warning.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">LCT P&L</Typography>
+                                  <Typography variant="body2" fontWeight="bold" color={((recap.metrics as IGAndHYMetrics)?.lct.pnl || 0) >= 0 ? 'success.main' : 'error.main'}>
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.lct.pnl || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'warning.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">LCT Risk</Typography>
+                                  <Typography variant="body2" fontWeight="bold">
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.lct.risk || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'warning.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">LCT Volumes</Typography>
+                                  <Typography variant="body2" fontWeight="bold">
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.lct.volumes || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                            </Grid>
+
+                            {/* CDS Metrics */}
+                            <Typography variant="subtitle2" fontWeight="bold" color="info.main" sx={{ mb: 1 }}>
+                              CDS
+                            </Typography>
+                            <Grid container spacing={2} sx={{ mb: 2 }}>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'info.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">CDS P&L</Typography>
+                                  <Typography variant="body2" fontWeight="bold" color={((recap.metrics as IGAndHYMetrics)?.cds.pnl || 0) >= 0 ? 'success.main' : 'error.main'}>
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.cds.pnl || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'info.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">CDS Risk</Typography>
+                                  <Typography variant="body2" fontWeight="bold">
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.cds.risk || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                              <Grid xs={12} sm={4}>
+                                <Box sx={{ textAlign: 'center', p: 1, backgroundColor: 'info.light', borderRadius: 1, opacity: 0.8 }}>
+                                  <Typography variant="caption" color="text.secondary">CDS Volumes</Typography>
+                                  <Typography variant="body2" fontWeight="bold">
+                                    {formatCurrency((recap.metrics as IGAndHYMetrics)?.cds.volumes || 0)}
+                                  </Typography>
+                                </Box>
+                              </Grid>
+                            </Grid>
+                          </Box>
+                        )}
+
+                        {/* Market Moves - Dynamic based on sector model */}
                         {recap.marketMovesAndFlows && (
                           <Box sx={{ mb: 2 }}>
                             <Typography variant="subtitle2" fontWeight="bold" color="text.primary" sx={{ mb: 0.5 }}>
                               Market Moves and Flows
                             </Typography>
-                            <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
-                              {formatMarketMovesAndFlows(recap.marketMovesAndFlows)}
+                            {getSectorModelType(recap.sector) === 'IG Only' ? (
+                              <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                                IG: {formatMarketMovesAndFlows((recap.marketMovesAndFlows as any).ig)}
+                              </Typography>
+                            ) : (
+                              <Box>
+                                <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary', mb: 0.5 }}>
+                                  IG: {formatMarketMovesAndFlows((recap.marketMovesAndFlows as any).ig)}
                             </Typography>
+                            <Typography variant="body2" sx={{ fontStyle: 'italic', color: 'text.secondary' }}>
+                                  HY: {formatMarketMovesAndFlows((recap.marketMovesAndFlows as any).hy)}
+                            </Typography>
+                              </Box>
+                            )}
                           </Box>
                         )}
 

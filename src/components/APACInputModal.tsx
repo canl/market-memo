@@ -49,11 +49,14 @@ export const APACInputModal: React.FC<APACInputModalProps> = ({
 
       // Calculate aggregated metrics from all sectors (same as TraderInput)
       const todaysReport = DataService.getReportByDate(today);
-      const aggregatedMetrics = todaysReport?.sectorRecaps.reduce((acc, recap) => ({
-        pnl: acc.pnl + (recap.metrics?.pnl || 0),
-        risk: acc.risk + (recap.metrics?.risk || 0),
-        volumes: acc.volumes + (recap.metrics?.volumes || 0)
-      }), { pnl: 0, risk: 0, volumes: 0 }) || { pnl: 0, risk: 0, volumes: 0 };
+      const aggregatedMetrics = todaysReport?.sectorRecaps.reduce((acc, recap) => {
+        const legacyMetrics = DataService.getLegacyMetrics(recap);
+        return {
+          pnl: acc.pnl + legacyMetrics.pnl,
+          risk: acc.risk + legacyMetrics.risk,
+          volumes: acc.volumes + legacyMetrics.volumes
+        };
+      }, { pnl: 0, risk: 0, volumes: 0 }) || { pnl: 0, risk: 0, volumes: 0 };
 
       const comments: APACComments = {
         date: today,

@@ -1,4 +1,5 @@
-import { DailyReport, SectorRecap, APACComments } from '../types';
+import { DailyReport, SectorRecap, APACComments, IGOnlyMarketMoves, IGAndHYMarketMoves, IGOnlyMetrics, IGAndHYMetrics } from '../types';
+import { getSectorModelType } from '../constants/sectors';
 
 // Sample APAC comments with simplified structure (for historical data only)
 export const sampleAPACComments: APACComments = {
@@ -12,16 +13,17 @@ export const sampleAPACComments: APACComments = {
 // Sample sector recaps based on the provided example
 export const sampleSectorRecaps: SectorRecap[] = [
   {
-    sector: 'Australia IG',
+    sector: 'Australia',
     marketMovesAndFlows: {
-      lower: -2,
-      higher: 3
-    },
+      ig: { lower: -2, higher: 3 },
+      hy: { lower: -1, higher: 2 }
+    } as IGAndHYMarketMoves,
     metrics: {
-      pnl: 200000,
-      risk: 45000,
-      volumes: 85000
-    },
+      ig: { pnl: 150000, risk: 35000, volumes: 60000 },
+      hy: { pnl: 50000, risk: 10000, volumes: 25000 },
+      lct: { pnl: 0, risk: 0, volumes: 0 },
+      cds: { pnl: 0, risk: 0, volumes: 0 }
+    } as IGAndHYMetrics,
     marketCommentary: 'Spreads are broadly unchanged to 2 tighter with light flows, in Fin senior desk saw continued strong demand in MQGAU 33s and 34s, in T2s desk saw demand in ANZ 5.731 34s and ANZ/ WSTP 35/ 36s. In corporates desk continued to see interest in STOAU 31/ 33s and NBN curve.',
     date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader A'
@@ -29,74 +31,75 @@ export const sampleSectorRecaps: SectorRecap[] = [
   {
     sector: 'Japan',
     marketMovesAndFlows: {
-      lower: 0,
-      higher: 1.5
-    },
+      ig: { lower: 0, higher: 1.5 },
+      hy: { lower: -0.5, higher: 1 }
+    } as IGAndHYMarketMoves,
     metrics: {
-      pnl: 200000,
-      risk: 38000,
-      volumes: 72000
-    },
+      ig: { pnl: 120000, risk: 25000, volumes: 45000 },
+      hy: { pnl: 80000, risk: 13000, volumes: 27000 },
+      lct: { pnl: 0, risk: 0, volumes: 0 },
+      cds: { pnl: 0, risk: 0, volumes: 0 }
+    } as IGAndHYMetrics,
     marketCommentary: 'Japan IG cash spreads continued to be in a constructive tone after Japan holiday with IG (-1/-2), HY (+0.05/+0.15). SoftBank said it and Open Al\'s 500bn Al project struggled to get off ground. Recently issued cash bonds settled the day up in a better sentiment with spreads average (-1.5), HY average (+0.10). Desk continued to see demand in new SoftBank in the long durations. Japan CDS spreads settled the day in a similar tone. CDSI closed at 60(-1/2) with seeing protection sellers with the roll at 6.625(uc) with JGB10YR (-2), TPX (+1), USDJPY at 148(-3/4) post Japan upper house election.',
     date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader B'
   },
   {
-    sector: 'China IG',
+    sector: 'China',
     marketMovesAndFlows: {
-      lower: undefined,
-      higher: undefined
-    },
+      ig: { lower: undefined, higher: undefined },
+      hy: { lower: -1, higher: 1 }
+    } as IGAndHYMarketMoves,
     metrics: {
-      pnl: -30000,
-      risk: 52000,
-      volumes: 95000
-    },
+      ig: { pnl: -50000, risk: 35000, volumes: 60000 },
+      hy: { pnl: 20000, risk: 17000, volumes: 35000 },
+      lct: { pnl: 0, risk: 0, volumes: 0 },
+      cds: { pnl: 0, risk: 0, volumes: 0 }
+    } as IGAndHYMetrics,
     marketCommentary: 'A bit of pullback today, closing +3/-1. TW names gave back 3bps on the recent gain, but had RMs adding after the move. TMT side, Syr closed unchanged to 1bp wider, 30yr is still solid though less buying interest today, closed broadly unchanged. HK names were active today. Seeing buyers across perps/bullets on NANFUN/HYSAN. HYSAN 7.2% up 75c with both retail and RMs buying. T2 are broadly unchanged.',
     date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader C'
   },
   {
-    sector: 'SEA IG',
+    sector: 'SEA',
     marketMovesAndFlows: {
-      lower: -1.25,
-      higher: undefined
-    },
+      ig: { lower: -1.25, higher: undefined },
+      hy: { lower: -0.5, higher: 0.5 }
+    } as IGAndHYMarketMoves,
     metrics: {
-      pnl: 170000,
-      risk: 42000,
-      volumes: 68000
-    },
+      ig: { pnl: 100000, risk: 28000, volumes: 45000 },
+      hy: { pnl: 70000, risk: 14000, volumes: 23000 },
+      lct: { pnl: 0, risk: 0, volumes: 0 },
+      cds: { pnl: 0, risk: 0, volumes: 0 }
+    } as IGAndHYMetrics,
     marketCommentary: 'The rally in US rates brought profit takers of IG spreads, with PETMK the most actively sold (by US RM then Asia). TOPTB also saw sellers appear while the rest was more two-way.',
     date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader D'
   },
   {
-    sector: 'India IG',
+    sector: 'India',
     marketMovesAndFlows: {
-      lower: 0.5,
-      higher: 2.75
-    },
+      ig: { lower: 0.5, higher: 2.75 },
+      hy: { lower: 0, higher: 1.5 }
+    } as IGAndHYMarketMoves,
     metrics: {
-      pnl: 200000,
-      risk: 35000,
-      volumes: 58000
-    },
+      ig: { pnl: 120000, risk: 22000, volumes: 38000 },
+      hy: { pnl: 80000, risk: 13000, volumes: 20000 },
+      lct: { pnl: 0, risk: 0, volumes: 0 },
+      cds: { pnl: 0, risk: 0, volumes: 0 }
+    } as IGAndHYMetrics,
     marketCommentary: 'Spreads are 1-2 bps tighter but saw profit booking by clients today, desk saw flows across EXIMBK 26/ OILIN, INCIN, POWFIN 27s /TATSON 28s / RECLIN 29s and light two way flows in 10 year while RILIN 52/ 62s were better bid. ATs were 15 cents higher with better demand across both names.',
     date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader E'
   },
   {
-    sector: 'Asia Sovs',
+    sector: 'Asia Sovereign',
     marketMovesAndFlows: {
-      lower: undefined,
-      higher: 1
-    },
+      ig: { lower: undefined, higher: 1 }
+    } as IGOnlyMarketMoves,
     metrics: {
-      pnl: 180000,
-      risk: 28000,
-      volumes: 45000
-    },
+      ig: { pnl: 180000, risk: 28000, volumes: 45000 }
+    } as IGOnlyMetrics,
     marketCommentary: 'Two way flows with ETF\'s and Asia RM the most active while international investors shun the tight valuations.',
     date: '2024-08-26', // Use a past date, not today
     submittedBy: 'Trader F'
@@ -148,20 +151,66 @@ export const generateHistoricalData = (): DailyReport[] => {
         const sectorMultiplier = isPositiveDay ? 1 : -1;
         const sectorVariation = (dayVariation + sectorIndex) % 5;
 
-        return {
-          ...recap,
-          date: dateString,
-          marketMovesAndFlows: {
-            lower: isPositiveDay ? -(sectorVariation + 1) : undefined,
-            higher: isPositiveDay ? undefined : (sectorVariation + 1) * 0.5
-          },
-          marketCommentary: `${recap.sector} - ${isPositiveDay ? 'Constructive' : 'Cautious'} trading session. ${recap.marketCommentary.substring(0, 100)}... [Day ${i + 1} update]`,
-          metrics: {
-            pnl: Math.floor(sectorMultiplier * (50000 + sectorVariation * 30000) * volatilityFactor),
-            risk: Math.floor((20000 + sectorVariation * 15000) * volatilityFactor),
-            volumes: Math.floor((30000 + sectorVariation * 20000) * volatilityFactor)
-          }
-        };
+        const modelType = getSectorModelType(recap.sector);
+        
+        if (modelType === 'IG Only') {
+          return {
+            ...recap,
+            date: dateString,
+            marketMovesAndFlows: {
+              ig: {
+                lower: isPositiveDay ? -(sectorVariation + 1) : undefined,
+                higher: isPositiveDay ? undefined : (sectorVariation + 1) * 0.5
+              }
+            } as IGOnlyMarketMoves,
+            marketCommentary: `${recap.sector} - ${isPositiveDay ? 'Constructive' : 'Cautious'} trading session. ${recap.marketCommentary.substring(0, 100)}... [Day ${i + 1} update]`,
+            metrics: {
+              ig: {
+                pnl: Math.floor(sectorMultiplier * (50000 + sectorVariation * 30000) * volatilityFactor),
+                risk: Math.floor((20000 + sectorVariation * 15000) * volatilityFactor),
+                volumes: Math.floor((30000 + sectorVariation * 20000) * volatilityFactor)
+              }
+            } as IGOnlyMetrics
+          };
+        } else {
+          return {
+            ...recap,
+            date: dateString,
+            marketMovesAndFlows: {
+              ig: {
+                lower: isPositiveDay ? -(sectorVariation + 1) : undefined,
+                higher: isPositiveDay ? undefined : (sectorVariation + 1) * 0.5
+              },
+              hy: {
+                lower: isPositiveDay ? -(sectorVariation * 0.5) : undefined,
+                higher: isPositiveDay ? undefined : (sectorVariation * 0.5) * 0.5
+              }
+            } as IGAndHYMarketMoves,
+            marketCommentary: `${recap.sector} - ${isPositiveDay ? 'Constructive' : 'Cautious'} trading session. ${recap.marketCommentary.substring(0, 100)}... [Day ${i + 1} update]`,
+            metrics: {
+              ig: {
+                pnl: Math.floor(sectorMultiplier * (30000 + sectorVariation * 20000) * volatilityFactor),
+                risk: Math.floor((15000 + sectorVariation * 10000) * volatilityFactor),
+                volumes: Math.floor((20000 + sectorVariation * 15000) * volatilityFactor)
+              },
+              hy: {
+                pnl: Math.floor(sectorMultiplier * (20000 + sectorVariation * 15000) * volatilityFactor),
+                risk: Math.floor((10000 + sectorVariation * 8000) * volatilityFactor),
+                volumes: Math.floor((15000 + sectorVariation * 10000) * volatilityFactor)
+              },
+              lct: {
+                pnl: 0,
+                risk: 0,
+                volumes: 0
+              },
+              cds: {
+                pnl: 0,
+                risk: 0,
+                volumes: 0
+              }
+            } as IGAndHYMetrics
+          };
+        }
       }),
       createdAt: date.toISOString(),
       lastModified: date.toISOString()

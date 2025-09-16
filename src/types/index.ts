@@ -1,40 +1,130 @@
 // Sector types
-export type Sector = 'Australia IG' |
-  'Korea IG' |
-  'China IG' |
-  'SEA IG' |
-  'India IG' |
+export type Sector = 'Australia' |
   'Japan' |
-  'Asia Sovs' |
-  'China HY' |
-  'Non-China HY' |
+  'China' |
+  'India' |
+  'SEA' |
+  'Korea' |
+  'Asia Sovereign' |
   'CDS'
 
-// Simplified metrics structure for each sector
-export interface SectorMetrics {
-  pnl: number;
-  risk: number;
-  volumes: number;
+// IG Only metrics structure
+export interface IGOnlyMetrics {
+  ig: {
+    pnl: number;
+    risk: number;
+    volumes: number;
+  };
 }
 
-// Form input metrics (string values for better UX)
-export interface SectorMetricsForm {
-  pnl: string;
-  risk: string;
-  volumes: string;
+// IG & HY metrics structure with all credit types
+export interface IGAndHYMetrics {
+  ig: {
+    pnl: number;
+    risk: number;
+    volumes: number;
+  };
+  hy: {
+    pnl: number;
+    risk: number;
+    volumes: number;
+  };
+  lct: {
+    pnl: number;
+    risk: number;
+    volumes: number;
+  };
+  cds: {
+    pnl: number;
+    risk: number;
+    volumes: number;
+  };
 }
 
-// Market Moves & Flows structure with lower and higher bounds
-export interface MarketMovesAndFlows {
-  lower?: number;
-  higher?: number;
+// Union type for sector metrics
+export type SectorMetrics = IGOnlyMetrics | IGAndHYMetrics;
+
+// Form input metrics for IG Only (string values for better UX)
+export interface IGOnlyMetricsForm {
+  ig: {
+    pnl: string;
+    risk: string;
+    volumes: string;
+  };
 }
 
-// Form input for Market Moves & Flows (string values for better UX)
-export interface MarketMovesAndFlowsForm {
-  lower: string;
-  higher: string;
+// Form input metrics for IG & HY (string values for better UX)
+export interface IGAndHYMetricsForm {
+  ig: {
+    pnl: string;
+    risk: string;
+    volumes: string;
+  };
+  hy: {
+    pnl: string;
+    risk: string;
+    volumes: string;
+  };
+  lct: {
+    pnl: string;
+    risk: string;
+    volumes: string;
+  };
+  cds: {
+    pnl: string;
+    risk: string;
+    volumes: string;
+  };
 }
+
+// Union type for form metrics
+export type SectorMetricsForm = IGOnlyMetricsForm | IGAndHYMetricsForm;
+
+// IG Only Market Moves & Flows structure
+export interface IGOnlyMarketMoves {
+  ig: {
+    lower?: number;
+    higher?: number;
+  };
+}
+
+// IG & HY Market Moves & Flows structure
+export interface IGAndHYMarketMoves {
+  ig: {
+    lower?: number;
+    higher?: number;
+  };
+  hy: {
+    lower?: number;
+    higher?: number;
+  };
+}
+
+// Union type for market moves
+export type MarketMovesAndFlows = IGOnlyMarketMoves | IGAndHYMarketMoves;
+
+// Form input for IG Only Market Moves & Flows (string values for better UX)
+export interface IGOnlyMarketMovesForm {
+  ig: {
+    lower: string;
+    higher: string;
+  };
+}
+
+// Form input for IG & HY Market Moves & Flows (string values for better UX)
+export interface IGAndHYMarketMovesForm {
+  ig: {
+    lower: string;
+    higher: string;
+  };
+  hy: {
+    lower: string;
+    higher: string;
+  };
+}
+
+// Union type for form market moves
+export type MarketMovesAndFlowsForm = IGOnlyMarketMovesForm | IGAndHYMarketMovesForm;
 
 // Sector-specific recap data with simplified structure
 export interface SectorRecap {
@@ -71,10 +161,10 @@ export interface HistoricalFilter {
   sector?: Sector | 'All';
 }
 
-// Form state for trader input with simplified metrics
+// Form state for trader input with new sector model
 export interface TraderFormState {
   selectedSector: Sector;
-  marketMovesAndFlows: string;
+  marketMovesAndFlows: MarketMovesAndFlowsForm;
   metrics: SectorMetricsForm;
   marketCommentary: string;
 }
