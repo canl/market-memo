@@ -437,109 +437,96 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
                     </Grid>
                   </Card>
                 ) : (
-                  /* IG & HY Form */
-                  <Box>
-                    <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
-                      <Typography variant="subtitle1" fontWeight="bold" color="primary.main" gutterBottom>
-                        Investment Grade
-                      </Typography>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="IG Lower Bound"
-                            type="number"
-                            value={((formData.marketMovesAndFlows as IGAndHYMarketMovesForm)?.ig?.lower) || ''}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              marketMovesAndFlows: {
-                                ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm),
-                                ig: {
-                                  ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm).ig,
-                                  lower: e.target.value
-                                }
-                              } as IGAndHYMarketMovesForm
-                            }))}
-                            placeholder="0"
-                            variant="outlined"
-                            autoFocus
-                            inputProps={{ step: "0.01" }}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="IG Higher Bound"
-                            type="number"
-                            value={((formData.marketMovesAndFlows as IGAndHYMarketMovesForm)?.ig?.higher) || ''}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              marketMovesAndFlows: {
-                                ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm),
-                                ig: {
-                                  ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm).ig,
-                                  higher: e.target.value
-                                }
-                              } as IGAndHYMarketMovesForm
-                            }))}
-                            placeholder="0"
-                            variant="outlined"
-                            inputProps={{ step: "0.01" }}
-                          />
-                        </Grid>
+                  /* IG & HY Form - Compact Single Row */
+                  <Card variant="outlined" sx={{ p: 2 }}>
+                    <Grid container spacing={2}>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          label="IG Lower"
+                          type="number"
+                          value={((formData.marketMovesAndFlows as IGAndHYMarketMovesForm)?.ig?.lower) || ''}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            marketMovesAndFlows: {
+                              ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm),
+                              ig: {
+                                ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm).ig,
+                                lower: e.target.value
+                              }
+                            } as IGAndHYMarketMovesForm
+                          }))}
+                          placeholder="0"
+                          variant="outlined"
+                          autoFocus
+                          inputProps={{ step: "0.01" }}
+                        />
                       </Grid>
-                    </Card>
-
-                    <Card variant="outlined" sx={{ p: 2 }}>
-                      <Typography variant="subtitle1" fontWeight="bold" color="secondary.main" gutterBottom>
-                        High Yield
-                      </Typography>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="HY Lower Bound"
-                            type="number"
-                            value={((formData.marketMovesAndFlows as IGAndHYMarketMovesForm)?.hy?.lower) || ''}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              marketMovesAndFlows: {
-                                ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm),
-                                hy: {
-                                  ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm).hy,
-                                  lower: e.target.value
-                                }
-                              } as IGAndHYMarketMovesForm
-                            }))}
-                            placeholder="0"
-                            variant="outlined"
-                            inputProps={{ step: "0.01" }}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            fullWidth
-                            label="HY Higher Bound"
-                            type="number"
-                            value={((formData.marketMovesAndFlows as IGAndHYMarketMovesForm)?.hy?.higher) || ''}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              marketMovesAndFlows: {
-                                ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm),
-                                hy: {
-                                  ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm).hy,
-                                  higher: e.target.value
-                                }
-                              } as IGAndHYMarketMovesForm
-                            }))}
-                            placeholder="0"
-                            variant="outlined"
-                            inputProps={{ step: "0.01" }}
-                          />
-                        </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          label="IG Higher"
+                          type="number"
+                          value={((formData.marketMovesAndFlows as IGAndHYMarketMovesForm)?.ig?.higher) || ''}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            marketMovesAndFlows: {
+                              ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm),
+                              ig: {
+                                ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm).ig,
+                                higher: e.target.value
+                              }
+                            } as IGAndHYMarketMovesForm
+                          }))}
+                          placeholder="0"
+                          variant="outlined"
+                          inputProps={{ step: "0.01" }}
+                        />
                       </Grid>
-                    </Card>
-                  </Box>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          label="HY Lower"
+                          type="number"
+                          value={((formData.marketMovesAndFlows as IGAndHYMarketMovesForm)?.hy?.lower) || ''}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            marketMovesAndFlows: {
+                              ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm),
+                              hy: {
+                                ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm).hy,
+                                lower: e.target.value
+                              }
+                            } as IGAndHYMarketMovesForm
+                          }))}
+                          placeholder="0"
+                          variant="outlined"
+                          inputProps={{ step: "0.01" }}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          label="HY Higher"
+                          type="number"
+                          value={((formData.marketMovesAndFlows as IGAndHYMarketMovesForm)?.hy?.higher) || ''}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            marketMovesAndFlows: {
+                              ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm),
+                              hy: {
+                                ...(prev.marketMovesAndFlows as IGAndHYMarketMovesForm).hy,
+                                higher: e.target.value
+                              }
+                            } as IGAndHYMarketMovesForm
+                          }))}
+                          placeholder="0"
+                          variant="outlined"
+                          inputProps={{ step: "0.01" }}
+                        />
+                      </Grid>
+                    </Grid>
+                  </Card>
                 )}
               </Grid>
 
