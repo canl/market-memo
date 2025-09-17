@@ -3,12 +3,9 @@ import {
   SectorRecap, 
   APACComments, 
   Sector,
-  IGOnlyMetrics,
-  IGAndHYMetrics,
   SectorMetrics
 } from '../types';
 import { mockHistoricalData, sampleAPACComments, sampleSectorRecaps } from '../data/mockData';
-import { getSectorModelType } from '../constants/sectors';
 
 const STORAGE_KEYS = {
   CURRENT_REPORT: 'market-memo-current-report',

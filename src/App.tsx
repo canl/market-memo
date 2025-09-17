@@ -15,6 +15,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import LightModeIcon from '@mui/icons-material/LightMode';
 import DarkModeIcon from '@mui/icons-material/DarkMode';
+import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import { DailyReport, SectorRecap, APACComments } from './types';
 import { Sidebar } from './components/Sidebar';
 import { DashboardView, DailySummaryView, HistoricalDataView } from './components/views';
@@ -131,14 +132,11 @@ function AppContent() {
             {sidebarOpen ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 1 }}>
-            <img
-              src="/memo.png"
-              alt="Memo"
-              style={{
-                width: '26px',
-                height: '26px',
-                // filter: isDarkMode ? 'brightness(0) invert(1)' : 'none'
-              }}
+            <TrendingUpIcon 
+              sx={{ 
+                fontSize: 26,
+                color: isDarkMode ? '#f8fafc' : '#1e293b'
+              }} 
             />
             <Typography
               variant="h6"

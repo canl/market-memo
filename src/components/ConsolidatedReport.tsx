@@ -26,10 +26,7 @@ import {
 import { DailyReport, IGOnlyMetrics, IGAndHYMetrics } from '../types';
 import { 
   SECTOR_LABELS, 
-  getSectorModelType, 
-  getSectorCategory,
-  isIGOnlySector,
-  isIGAndHYSector 
+  getSectorModelType
 } from '../constants/sectors';
 import { formatDate, formatCurrency, formatMarketMovesAndFlows } from '../utils/formatters';
 import { DataService } from '../services/dataService';

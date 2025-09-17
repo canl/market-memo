@@ -375,22 +375,22 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
         )}
 
         {/* Dynamic Form based on Sector Model */}
-        <Grid container spacing={3}>
+        <Grid container spacing={2}>
           {sector && (
             <>
               {/* Market Moves & Flows Section */}
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom>
+                <Typography variant="h6" gutterBottom sx={{ mb: 1 }}>
                   Market Moves & Flows
                 </Typography>
                 
                 {getSectorModelType(sector) === 'IG Only' ? (
                   /* IG Only Form */
-                  <Card variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="subtitle1" fontWeight="bold" color="primary.main" gutterBottom>
+                  <Card variant="outlined" sx={{ p: 1.5 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" color="primary.main" gutterBottom sx={{ mb: 1 }}>
                       Investment Grade
                     </Typography>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1.5}>
                       <Grid item xs={12} sm={6}>
                         <TextField
                           fullWidth
@@ -438,8 +438,8 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
                   </Card>
                 ) : (
                   /* IG & HY Form - Compact Single Row */
-                  <Card variant="outlined" sx={{ p: 2 }}>
-                    <Grid container spacing={2}>
+                  <Card variant="outlined" sx={{ p: 1.5 }}>
+                    <Grid container spacing={1.5}>
                       <Grid item xs={12} sm={3}>
                         <TextField
                           fullWidth
@@ -532,23 +532,23 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
 
               {/* Financial Metrics Section */}
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                <Typography variant="h6" gutterBottom sx={{ mt: 1.5, mb: 1 }}>
                   Financial Metrics
                 </Typography>
                 
                 {getSectorModelType(sector) === 'IG Only' ? (
                   /* IG Only Metrics - Organized by PNL, Risk, Volume */
-                  <Card variant="outlined" sx={{ p: 2 }}>
-                    <Typography variant="subtitle1" fontWeight="bold" color="primary.main" gutterBottom>
+                  <Card variant="outlined" sx={{ p: 1.5 }}>
+                    <Typography variant="subtitle1" fontWeight="bold" color="primary.main" gutterBottom sx={{ mb: 1 }}>
                       Investment Grade Metrics
                     </Typography>
-                    <Grid container spacing={2}>
+                    <Grid container spacing={1.5}>
                       <Grid item xs={12} sm={4}>
                         <TextField
                           fullWidth
                           label="P&L *"
                           type="number"
-                          value={((formData.metrics as IGOnlyMetricsForm)?.ig?.pnl) || '0'}
+                          value={((formData.metrics as IGOnlyMetricsForm)?.ig?.pnl) || ''}
                           onChange={(e) => setFormData(prev => ({
                             ...prev,
                             metrics: {
@@ -558,22 +558,12 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
                               }
                             } as IGOnlyMetricsForm
                           }))}
-                          onFocus={(e) => {
-                            const currentValue = ((formData.metrics as IGOnlyMetricsForm)?.ig?.pnl) || '0';
-                            if (currentValue === '0') {
-                              e.target.select();
-                            }
-                          }}
-                          onClick={(e) => {
-                            const currentValue = ((formData.metrics as IGOnlyMetricsForm)?.ig?.pnl) || '0';
-                            if (currentValue === '0') {
-                              (e.target as HTMLInputElement).select();
-                            }
-                          }}
+                          placeholder="0"
                           InputProps={{
                             startAdornment: <InputAdornment position="start">$</InputAdornment>,
                             endAdornment: <InputAdornment position="end">k</InputAdornment>
                           }}
+                          inputProps={{ step: "0.01" }}
                           variant="outlined"
                         />
                         {((formData.metrics as IGOnlyMetricsForm)?.ig?.pnl) && (
@@ -664,460 +654,429 @@ export const SectorInputModal: React.FC<SectorInputModalProps> = ({
                     </Grid>
                   </Card>
                 ) : (
-                  /* IG & HY Metrics - Organized by PNL, Risk, Volume */
-                  <Box>
-                    {/* PNL Section */}
-                    <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
-                      <Typography variant="subtitle1" fontWeight="bold" color="success.main" gutterBottom>
-                        P&L
-                      </Typography>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="IG P&L *"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.ig?.pnl) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                ig: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).ig,
-                                  pnl: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.pnl) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.pnl) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="end">k</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="HY P&L"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.hy?.pnl) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                hy: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).hy,
-                                  pnl: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.pnl) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.pnl) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="end">k</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="LCT P&L"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.lct?.pnl) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                lct: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).lct,
-                                  pnl: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.pnl) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.pnl) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="end">k</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="CDS P&L"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.cds?.pnl) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                cds: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).cds,
-                                  pnl: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.pnl) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.pnl) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="end">k</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
+                  /* IG & HY Metrics - Compact Single Card Layout */
+                  <Card variant="outlined" sx={{ p: 2 }}>
+                    {/* Compact Grid Layout - 3 rows x 4 columns */}
+                    <Grid container spacing={1.5}>
+                      {/* Row 1: P&L */}
+                      <Grid item xs={12}>
+                        <Typography variant="subtitle2" color="success.main" sx={{ mb: 1, fontWeight: 'bold' }}>
+                          P&L
+                        </Typography>
                       </Grid>
-                    </Card>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="IG P&L *"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.ig?.pnl) || ''}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              ig: {
+                                ...(prev.metrics as IGAndHYMetricsForm).ig,
+                                pnl: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          placeholder="0"
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">k</InputAdornment>
+                          }}
+                          inputProps={{ step: "0.01" }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="HY P&L"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.hy?.pnl) || ''}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              hy: {
+                                ...(prev.metrics as IGAndHYMetricsForm).hy,
+                                pnl: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          placeholder="0"
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">k</InputAdornment>
+                          }}
+                          inputProps={{ step: "0.01" }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="LCT P&L"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.lct?.pnl) || ''}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              lct: {
+                                ...(prev.metrics as IGAndHYMetricsForm).lct,
+                                pnl: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          placeholder="0"
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">k</InputAdornment>
+                          }}
+                          inputProps={{ step: "0.01" }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="CDS P&L"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.cds?.pnl) || ''}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              cds: {
+                                ...(prev.metrics as IGAndHYMetricsForm).cds,
+                                pnl: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          placeholder="0"
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">k</InputAdornment>
+                          }}
+                          inputProps={{ step: "0.01" }}
+                          variant="outlined"
+                        />
+                      </Grid>
 
-                    {/* Risk Section */}
-                    <Card variant="outlined" sx={{ p: 2, mb: 2 }}>
-                      <Typography variant="subtitle1" fontWeight="bold" color="error.main" gutterBottom>
-                        Risk
-                      </Typography>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="IG Risk"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.ig?.risk) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                ig: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).ig,
-                                  risk: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.risk) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.risk) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="end">k</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="HY Risk"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.hy?.risk) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                hy: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).hy,
-                                  risk: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.risk) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.risk) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="end">k</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="LCT Risk"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.lct?.risk) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                lct: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).lct,
-                                  risk: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.risk) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.risk) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="end">k</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="CDS Risk"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.cds?.risk) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                cds: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).cds,
-                                  risk: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.risk) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.risk) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              startAdornment: <InputAdornment position="start">$</InputAdornment>,
-                              endAdornment: <InputAdornment position="end">k</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
+                      {/* Row 2: Risk */}
+                      <Grid item xs={12} sx={{ mt: 1 }}>
+                        <Typography variant="subtitle2" color="error.main" sx={{ mb: 1, fontWeight: 'bold' }}>
+                          Risk
+                        </Typography>
                       </Grid>
-                    </Card>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="IG Risk"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.ig?.risk) || '0'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              ig: {
+                                ...(prev.metrics as IGAndHYMetricsForm).ig,
+                                risk: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          onFocus={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.risk) || '0';
+                            if (currentValue === '0') {
+                              e.target.select();
+                            }
+                          }}
+                          onClick={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.risk) || '0';
+                            if (currentValue === '0') {
+                              (e.target as HTMLInputElement).select();
+                            }
+                          }}
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">k</InputAdornment>
+                          }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="HY Risk"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.hy?.risk) || '0'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              hy: {
+                                ...(prev.metrics as IGAndHYMetricsForm).hy,
+                                risk: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          onFocus={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.risk) || '0';
+                            if (currentValue === '0') {
+                              e.target.select();
+                            }
+                          }}
+                          onClick={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.risk) || '0';
+                            if (currentValue === '0') {
+                              (e.target as HTMLInputElement).select();
+                            }
+                          }}
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">k</InputAdornment>
+                          }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="LCT Risk"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.lct?.risk) || '0'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              lct: {
+                                ...(prev.metrics as IGAndHYMetricsForm).lct,
+                                risk: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          onFocus={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.risk) || '0';
+                            if (currentValue === '0') {
+                              e.target.select();
+                            }
+                          }}
+                          onClick={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.risk) || '0';
+                            if (currentValue === '0') {
+                              (e.target as HTMLInputElement).select();
+                            }
+                          }}
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">k</InputAdornment>
+                          }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="CDS Risk"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.cds?.risk) || '0'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              cds: {
+                                ...(prev.metrics as IGAndHYMetricsForm).cds,
+                                risk: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          onFocus={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.risk) || '0';
+                            if (currentValue === '0') {
+                              e.target.select();
+                            }
+                          }}
+                          onClick={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.risk) || '0';
+                            if (currentValue === '0') {
+                              (e.target as HTMLInputElement).select();
+                            }
+                          }}
+                          InputProps={{
+                            startAdornment: <InputAdornment position="start">$</InputAdornment>,
+                            endAdornment: <InputAdornment position="end">k</InputAdornment>
+                          }}
+                          variant="outlined"
+                        />
+                      </Grid>
 
-                    {/* Volume Section */}
-                    <Card variant="outlined" sx={{ p: 2 }}>
-                      <Typography variant="subtitle1" fontWeight="bold" color="info.main" gutterBottom>
-                        Volume
-                      </Typography>
-                      <Grid container spacing={2}>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="IG Volume"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.ig?.volumes) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                ig: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).ig,
-                                  volumes: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.volumes) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.volumes) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              endAdornment: <InputAdornment position="end">M</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="HY Volume"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.hy?.volumes) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                hy: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).hy,
-                                  volumes: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.volumes) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.volumes) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              endAdornment: <InputAdornment position="end">M</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="LCT Volume"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.lct?.volumes) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                lct: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).lct,
-                                  volumes: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.volumes) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.volumes) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              endAdornment: <InputAdornment position="end">M</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={3}>
-                          <TextField
-                            fullWidth
-                            label="CDS Volume"
-                            type="number"
-                            value={((formData.metrics as IGAndHYMetricsForm)?.cds?.volumes) || '0'}
-                            onChange={(e) => setFormData(prev => ({
-                              ...prev,
-                              metrics: {
-                                ...(prev.metrics as IGAndHYMetricsForm),
-                                cds: {
-                                  ...(prev.metrics as IGAndHYMetricsForm).cds,
-                                  volumes: e.target.value
-                                }
-                              } as IGAndHYMetricsForm
-                            }))}
-                            onFocus={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.volumes) || '0';
-                              if (currentValue === '0') {
-                                e.target.select();
-                              }
-                            }}
-                            onClick={(e) => {
-                              const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.volumes) || '0';
-                              if (currentValue === '0') {
-                                (e.target as HTMLInputElement).select();
-                              }
-                            }}
-                            InputProps={{
-                              endAdornment: <InputAdornment position="end">M</InputAdornment>
-                            }}
-                            variant="outlined"
-                          />
-                        </Grid>
+                      {/* Row 3: Volume */}
+                      <Grid item xs={12} sx={{ mt: 1 }}>
+                        <Typography variant="subtitle2" color="info.main" sx={{ mb: 1, fontWeight: 'bold' }}>
+                          Volume
+                        </Typography>
                       </Grid>
-                    </Card>
-                  </Box>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="IG Volume"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.ig?.volumes) || '0'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              ig: {
+                                ...(prev.metrics as IGAndHYMetricsForm).ig,
+                                volumes: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          onFocus={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.volumes) || '0';
+                            if (currentValue === '0') {
+                              e.target.select();
+                            }
+                          }}
+                          onClick={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.ig?.volumes) || '0';
+                            if (currentValue === '0') {
+                              (e.target as HTMLInputElement).select();
+                            }
+                          }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">M</InputAdornment>
+                          }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="HY Volume"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.hy?.volumes) || '0'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              hy: {
+                                ...(prev.metrics as IGAndHYMetricsForm).hy,
+                                volumes: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          onFocus={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.volumes) || '0';
+                            if (currentValue === '0') {
+                              e.target.select();
+                            }
+                          }}
+                          onClick={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.hy?.volumes) || '0';
+                            if (currentValue === '0') {
+                              (e.target as HTMLInputElement).select();
+                            }
+                          }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">M</InputAdornment>
+                          }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="LCT Volume"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.lct?.volumes) || '0'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              lct: {
+                                ...(prev.metrics as IGAndHYMetricsForm).lct,
+                                volumes: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          onFocus={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.volumes) || '0';
+                            if (currentValue === '0') {
+                              e.target.select();
+                            }
+                          }}
+                          onClick={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.lct?.volumes) || '0';
+                            if (currentValue === '0') {
+                              (e.target as HTMLInputElement).select();
+                            }
+                          }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">M</InputAdornment>
+                          }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={3}>
+                        <TextField
+                          fullWidth
+                          size="small"
+                          label="CDS Volume"
+                          type="number"
+                          value={((formData.metrics as IGAndHYMetricsForm)?.cds?.volumes) || '0'}
+                          onChange={(e) => setFormData(prev => ({
+                            ...prev,
+                            metrics: {
+                              ...(prev.metrics as IGAndHYMetricsForm),
+                              cds: {
+                                ...(prev.metrics as IGAndHYMetricsForm).cds,
+                                volumes: e.target.value
+                              }
+                            } as IGAndHYMetricsForm
+                          }))}
+                          onFocus={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.volumes) || '0';
+                            if (currentValue === '0') {
+                              e.target.select();
+                            }
+                          }}
+                          onClick={(e) => {
+                            const currentValue = ((formData.metrics as IGAndHYMetricsForm)?.cds?.volumes) || '0';
+                            if (currentValue === '0') {
+                              (e.target as HTMLInputElement).select();
+                            }
+                          }}
+                          InputProps={{
+                            endAdornment: <InputAdornment position="end">M</InputAdornment>
+                          }}
+                          variant="outlined"
+                        />
+                      </Grid>
+                    </Grid>
+                  </Card>
                 )}
               </Grid>
 
               {/* Market Commentary */}
               <Grid item xs={12}>
-                <Typography variant="h6" gutterBottom sx={{ mt: 2 }}>
+                <Typography variant="h6" gutterBottom sx={{ mt: 1.5, mb: 1 }}>
                   Market Commentary
                 </Typography>
-                <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
+                <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 1.5 }}>
                   Provide detailed market commentary and analysis with rich text formatting support. (Optional)
                 </Typography>
                 <RichTextEditor
@@ -1131,7 +1090,7 @@ Examples:
 • Notable trades and market events
 • Risk factors and outlook
 • Technical analysis and levels"
-                  height={200}
+                  height={160}
                 />
               </Grid>
             </>

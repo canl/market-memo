@@ -20,9 +20,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({
 }) => {
   const theme = useTheme();
 
-  // Dynamic colors based on theme mode
-  const textColor = theme.palette.mode === 'dark' ? '#ffffff' : '#000000';
-
   return (
     <Box
       sx={{
